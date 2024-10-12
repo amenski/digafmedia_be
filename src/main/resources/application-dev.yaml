@@ -25,4 +25,5 @@ spring:
     password: password
 
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: db/master.xml

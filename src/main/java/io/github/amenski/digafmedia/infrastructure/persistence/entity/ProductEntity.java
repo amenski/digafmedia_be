@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.infrastructure.entity;
+package io.github.amenski.digafmedia.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
