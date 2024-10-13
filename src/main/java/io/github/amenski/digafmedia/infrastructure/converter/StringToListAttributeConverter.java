@@ -24,7 +24,7 @@ public class StringToListAttributeConverter implements AttributeConverter<List<S
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
-        return StringUtils.isBlank(dbData)
+        return StringUtils.isNotBlank(dbData)
                 ? Arrays.asList(dbData.split(Constants.ATTRIBUTE_SEPARATOR))
                 : new ArrayList<>(0);
     }

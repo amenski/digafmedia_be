@@ -21,9 +21,7 @@ public class ProductDbRepositoryImpl implements ProductRepository {
 
     @Override
     public Product findById(Long id) {
-        return productJpaRepository.findById(id)
-                .map(this::toDomain)
-                .orElseThrow(() -> new RuntimeException("Product not found."));
+        return toDomain(productJpaRepository.findByIdOrThrow(id));
     }
 
     @Override

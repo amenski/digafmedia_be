@@ -1,34 +1,41 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.entity;
 
 import io.github.amenski.digafmedia.infrastructure.converter.StringToListAttributeConverter;
+import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "item")
-public class ItemEntity {
+public class ItemEntity extends BaseEntity {
 
-    @Id
-    private Long id;
     private String title;
     private String contact;
     private String description;
 
     @Convert(converter = StringToListAttributeConverter.class)
     private List<String> images;
-    private String publishedOn;
 
+    @Column(name = "published_on")
+    private OffsetDateTime publishedOn;
 
-    public Long getId() {
-        return id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private ProductEntity product;
+
+    public ProductEntity getProduct() {
+        return product;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setProduct(ProductEntity product) {
+        this.product = product;
     }
 
     public String getTitle() {
@@ -63,11 +70,11 @@ public class ItemEntity {
         this.images = images;
     }
 
-    public String getPublishedOn() {
+    public OffsetDateTime getPublishedOn() {
         return publishedOn;
     }
 
-    public void setPublishedOn(String publishedOn) {
+    public void setPublishedOn(OffsetDateTime publishedOn) {
         this.publishedOn = publishedOn;
     }
 }
