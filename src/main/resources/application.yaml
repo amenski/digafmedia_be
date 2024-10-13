@@ -16,13 +16,15 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: false
     show-sql: false
+    open-in-view: false
   datasource:
     url: jdbc:mysql://localhost:3306/digafmedia
     username: root
     password: password
+    hikari:
+      auto-commit: false
 
   liquibase:
     enabled: false
