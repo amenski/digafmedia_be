@@ -2,6 +2,7 @@ package io.github.amenski.digafmedia.infrastructure;
 
 import io.github.amenski.digafmedia.domain.Items;
 import io.github.amenski.digafmedia.usecase.GetAllItemsUseCase;
+import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -10,8 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("v1/products/{product}")
@@ -35,5 +34,4 @@ public class ProductController {
         }
         return new ResponseEntity<>(result, HttpStatusCode.valueOf(200));
     }
-
 }
