@@ -2,10 +2,8 @@ package io.github.amenski.digafmedia.infrastructure;
 
 import io.github.amenski.digafmedia.domain.Items;
 import io.github.amenski.digafmedia.usecase.GetAllItemsUseCase;
-import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,12 +24,12 @@ public class ProductController {
 
     @GetMapping("/items")
     ResponseEntity<Items> getAllItems(@PathVariable String product) {
-        Items result = new Items(new ArrayList<>());
         try {
-            result = getAllItemsUseCase.invoke(product);
+            Items result = getAllItemsUseCase.invoke(product);
+            return ResponseEntity.ok(result);
         } catch (Exception ex) {
-            log.error("Error getting all items.", ex);
+            log.error("Error getting items for product: {}", product, ex);
+            return ResponseEntity.internalServerError().build();
         }
-        return new ResponseEntity<>(result, HttpStatusCode.valueOf(200));
     }
 }

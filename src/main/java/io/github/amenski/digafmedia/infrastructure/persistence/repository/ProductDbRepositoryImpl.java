@@ -3,6 +3,7 @@ package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 import io.github.amenski.digafmedia.domain.Product;
 import io.github.amenski.digafmedia.domain.repository.ProductRepository;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.ProductEntity;
+import io.github.amenski.digafmedia.infrastructure.persistence.entity.ImageEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,6 +41,11 @@ public class ProductDbRepositoryImpl implements ProductRepository {
     }
 
     private Product toDomain(ProductEntity productEntity) {
-        return new Product(productEntity.getRouteName(), productEntity.getName(), productEntity.getImage());
+        String image = productEntity.getImages().stream()
+                .sorted((a, b) -> a.getDisplayOrder().compareTo(b.getDisplayOrder()))
+                .map(ImageEntity::getFilePath)
+                .findFirst()
+                .orElse(null);
+        return new Product(productEntity.getRouteName(), productEntity.getName(), image);
     }
 }
