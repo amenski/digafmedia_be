@@ -1,7 +1,7 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 
 import io.github.amenski.digafmedia.domain.Product;
-import io.github.amenski.digafmedia.domain.repository.ProductRepository;
+import io.github.amenski.digafmedia.usecase.port.ProductRepository;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.ProductEntity;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.ImageEntity;
 import org.springframework.stereotype.Repository;
@@ -23,16 +23,6 @@ public class ProductDbRepositoryImpl implements ProductRepository {
     @Override
     public Product findById(Long id) {
         return toDomain(productJpaRepository.findByIdOrThrow(id));
-    }
-
-    @Override
-    public Product save(ProductEntity product) {
-        return toDomain(productJpaRepository.save(product));
-    }
-
-    @Override
-    public void delete(ProductEntity product) {
-        productJpaRepository.delete(product);
     }
 
     @Override

@@ -1,10 +1,7 @@
 package io.github.amenski.digafmedia.usecase;
 
-import io.github.amenski.digafmedia.domain.repository.CommentRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import io.github.amenski.digafmedia.usecase.port.CommentRepository;
 
-@Service
 public class DeleteCommentUseCase {
 
     private final CommentRepository commentRepository;
@@ -13,7 +10,6 @@ public class DeleteCommentUseCase {
         this.commentRepository = commentRepository;
     }
 
-    @Transactional
     public void invoke(Long id) {
         commentRepository.deleteById(id);
     }

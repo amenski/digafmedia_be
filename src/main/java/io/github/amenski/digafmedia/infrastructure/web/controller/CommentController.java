@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.infrastructure;
+package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Comment;
 import io.github.amenski.digafmedia.domain.Comments;
@@ -75,6 +75,9 @@ public class CommentController {
             );
             Comment createdComment = createCommentUseCase.invoke(comment);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
+        } catch (io.github.amenski.digafmedia.domain.DomainValidationException e) {
+            log.warn("Validation error creating comment: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
             log.error("Error creating comment", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

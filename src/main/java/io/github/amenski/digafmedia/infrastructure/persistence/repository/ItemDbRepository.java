@@ -1,30 +1,30 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 
 import io.github.amenski.digafmedia.domain.Item;
-import io.github.amenski.digafmedia.domain.repository.ItemRepository;
-import io.github.amenski.digafmedia.infrastructure.persistence.entity.ItemEntity;
+import io.github.amenski.digafmedia.usecase.port.ItemRepository;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.ImageEntity;
+import io.github.amenski.digafmedia.infrastructure.persistence.entity.ItemEntity;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.chrono.EthiopicChronology;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.List;
-
 @Repository
-public class ItemDbRepositoryImpl implements ItemRepository {
+public class ItemDbRepository implements ItemRepository {
 
     private final ItemJpaRepository itemJpaRepository;
 
-    public ItemDbRepositoryImpl(ItemJpaRepository itemJpaRepository) {
+    public ItemDbRepository(ItemJpaRepository itemJpaRepository) {
         this.itemJpaRepository = itemJpaRepository;
     }
 
     @Override
-    public List<Item> findAllByProduct(String productName) {
-        return itemJpaRepository.findAllByProductName(productName).stream().map(this::toDomain).toList();
+    public List<Item> findAllByProduct(String route) {
+        return itemJpaRepository.findAllByProductRouteName(route).stream().map(this::toDomain).toList();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ItemDbRepositoryImpl implements ItemRepository {
         LocalDate date = LocalDate.of(ethiopicDateTime.getYear(), ethiopicDateTime.getMonthOfYear(), ethiopicDateTime.getDayOfMonth());
 
         List<String> images = itemEntity.getImages().stream()
-                .sorted((a, b) -> a.getDisplayOrder().compareTo(b.getDisplayOrder()))
+                .sorted(Comparator.comparing(ImageEntity::getDisplayOrder))
                 .map(ImageEntity::getFilePath)
                 .toList();
 

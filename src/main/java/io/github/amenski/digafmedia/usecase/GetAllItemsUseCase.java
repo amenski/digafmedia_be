@@ -1,7 +1,7 @@
 package io.github.amenski.digafmedia.usecase;
 
 import io.github.amenski.digafmedia.domain.Items;
-import io.github.amenski.digafmedia.domain.repository.ItemRepository;
+import io.github.amenski.digafmedia.usecase.port.ItemRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

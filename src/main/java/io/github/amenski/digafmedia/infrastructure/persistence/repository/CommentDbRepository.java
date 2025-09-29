@@ -1,7 +1,7 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 
 import io.github.amenski.digafmedia.domain.Comment;
-import io.github.amenski.digafmedia.domain.repository.CommentRepository;
+import io.github.amenski.digafmedia.usecase.port.CommentRepository;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.CommentEntity;
 import org.springframework.stereotype.Repository;
 

@@ -1,9 +1,7 @@
-package io.github.amenski.digafmedia.infrastructure;
+package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Item;
-import io.github.amenski.digafmedia.domain.repository.ItemRepository;
-import java.time.LocalDate;
-import java.util.List;
+import io.github.amenski.digafmedia.usecase.GetFreeServiceTextUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
@@ -18,22 +16,17 @@ public class GenericController {
 
     private static final Logger log = LoggerFactory.getLogger(GenericController.class);
 
-    private final ItemRepository itemRepository;
+    private final GetFreeServiceTextUseCase getFreeServiceTextUseCase;
 
-  public GenericController(ItemRepository itemRepository) {
-    this.itemRepository = itemRepository;
-  }
+    public GenericController(GetFreeServiceTextUseCase getFreeServiceTextUseCase) {
+        this.getFreeServiceTextUseCase = getFreeServiceTextUseCase;
+    }
 
   @GetMapping("/free-service-text")
     ResponseEntity<Item> getAllItems() {
         Item result = null;
         try {
-            List<Item> items = itemRepository.findAllByProduct("free-service");
-            if (items.isEmpty()) {
-                result = new Item("ignore", "ignore", "No data.", List.of(), LocalDate.now());
-            } else {
-                result = items.get(0);
-            }
+            result = getFreeServiceTextUseCase.invoke();
         } catch (Exception ex) {
             log.error("Error getting free service text.", ex);
         }

@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.infrastructure;
+package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Items;
 import io.github.amenski.digafmedia.usecase.GetAllItemsUseCase;

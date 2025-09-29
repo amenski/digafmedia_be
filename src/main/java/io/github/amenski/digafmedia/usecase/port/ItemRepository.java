@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.domain.repository;
+package io.github.amenski.digafmedia.usecase.port;
 
 import io.github.amenski.digafmedia.domain.Item;
 
@@ -10,3 +10,4 @@ public interface ItemRepository {
 
     List<Item> findAll();
 }
+
