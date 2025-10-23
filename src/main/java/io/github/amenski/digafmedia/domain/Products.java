@@ -1,6 +1,0 @@
-package io.github.amenski.digafmedia.domain;
-
-import java.util.List;
-
-public record Products(List<Product> result) {
-}

@@ -1,8 +1,8 @@
 package io.github.amenski.digafmedia.usecase;
 
 import io.github.amenski.digafmedia.domain.Comment;
-import io.github.amenski.digafmedia.domain.rules.Validator;
-import io.github.amenski.digafmedia.usecase.port.CommentRepository;
+import io.github.amenski.digafmedia.domain.Validator;
+import io.github.amenski.digafmedia.domain.repository.CommentRepository;
 import java.time.OffsetDateTime;
 
 public class CreateCommentUseCase {

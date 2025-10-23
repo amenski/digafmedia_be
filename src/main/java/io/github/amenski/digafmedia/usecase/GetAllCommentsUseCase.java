@@ -1,7 +1,7 @@
 package io.github.amenski.digafmedia.usecase;
 
 import io.github.amenski.digafmedia.domain.Comments;
-import io.github.amenski.digafmedia.usecase.port.CommentRepository;
+import io.github.amenski.digafmedia.domain.repository.CommentRepository;
 
 public class GetAllCommentsUseCase {
 

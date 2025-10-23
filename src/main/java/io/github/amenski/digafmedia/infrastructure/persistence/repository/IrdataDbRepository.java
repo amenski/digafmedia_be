@@ -1,0 +1,87 @@
+package io.github.amenski.digafmedia.infrastructure.persistence.repository;
+
+import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
+import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
+import io.github.amenski.digafmedia.infrastructure.persistence.entity.IrdataPostEntity;
+import io.github.amenski.digafmedia.domain.repository.IrdataRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class IrdataDbRepository implements IrdataRepository {
+
+    private final IrdataJpaRepository irdataJpaRepository;
+
+    public IrdataDbRepository(IrdataJpaRepository irdataJpaRepository) {
+        this.irdataJpaRepository = irdataJpaRepository;
+    }
+
+    @Override
+    public List<IrdataPost> findAll() {
+        return irdataJpaRepository.findAll().stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<IrdataPost> findByStatus(IrdataStatus status) {
+        return irdataJpaRepository.findByStatus(status).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public Optional<IrdataPost> findById(Long id) {
+        return irdataJpaRepository.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public IrdataPost save(IrdataPost post) {
+        IrdataPostEntity entity = toEntity(post);
+        if (entity.getId() == null) {
+            entity.setCreatedAt(OffsetDateTime.now());
+        }
+        entity.setModifiedAt(OffsetDateTime.now());
+        return toDomain(irdataJpaRepository.save(entity));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        irdataJpaRepository.deleteById(id);
+    }
+
+    private IrdataPost toDomain(IrdataPostEntity entity) {
+        return new IrdataPost(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getGoalAmount(),
+                entity.getCurrentAmount(),
+                entity.getBankName(),
+                entity.getAccountNumber(),
+                entity.getAccountHolder(),
+                entity.getContactName(),
+                entity.getContactPhone(),
+                entity.getContactEmail(),
+                entity.getStatus(),
+                entity.getCreatedAt(),
+                entity.getModifiedAt()
+        );
+    }
+
+    private IrdataPostEntity toEntity(IrdataPost post) {
+        IrdataPostEntity entity = new IrdataPostEntity();
+        entity.setId(post.id());
+        entity.setTitle(post.title());
+        entity.setDescription(post.description());
+        entity.setGoalAmount(post.goalAmount());
+        entity.setCurrentAmount(post.currentAmount());
+        entity.setBankName(post.bankName());
+        entity.setAccountNumber(post.accountNumber());
+        entity.setAccountHolder(post.accountHolder());
+        entity.setContactName(post.contactName());
+        entity.setContactPhone(post.contactPhone());
+        entity.setContactEmail(post.contactEmail());
+        entity.setStatus(post.status());
+        return entity;
+    }
+}
