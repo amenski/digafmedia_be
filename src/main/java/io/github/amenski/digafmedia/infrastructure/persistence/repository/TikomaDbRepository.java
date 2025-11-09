@@ -1,9 +1,11 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 
 import io.github.amenski.digafmedia.domain.tikoma.TikomaAlert;
+import io.github.amenski.digafmedia.domain.tikoma.TikomaUrgency;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.TikomaAlertEntity;
 import io.github.amenski.digafmedia.domain.repository.TikomaRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -33,6 +35,11 @@ public class TikomaDbRepository implements TikomaRepository {
     }
 
     @Override
+    public List<TikomaAlert> findByUrgency(TikomaUrgency urgency) {
+        return tikomaJpaRepository.findByUrgency(urgency).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public Optional<TikomaAlert> findById(Long id) {
         return tikomaJpaRepository.findById(id).map(this::toDomain);
     }
@@ -50,6 +57,28 @@ public class TikomaDbRepository implements TikomaRepository {
     @Override
     public void deleteById(Long id) {
         tikomaJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public List<TikomaAlert> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return tikomaJpaRepository.findAllPaginated(pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<TikomaAlert> findByUrgencyPaginated(TikomaUrgency urgency, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return tikomaJpaRepository.findByUrgencyPaginated(urgency, pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public long count() {
+        return tikomaJpaRepository.count();
+    }
+
+    @Override
+    public long countByUrgency(TikomaUrgency urgency) {
+        return tikomaJpaRepository.countByUrgency(urgency);
     }
 
     private TikomaAlert toDomain(TikomaAlertEntity entity) {

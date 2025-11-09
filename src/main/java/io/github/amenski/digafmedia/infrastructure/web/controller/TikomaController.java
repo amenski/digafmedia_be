@@ -32,9 +32,20 @@ public class TikomaController {
     }
 
     @GetMapping
-    public ResponseEntity<TikomaAlerts> getAllAlerts(@RequestParam(required = false, defaultValue = "10") Integer limit) {
+    public ResponseEntity<TikomaAlerts> getAllAlerts(
+            @RequestParam(required = false) TikomaUrgency urgency,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            TikomaAlerts alerts = getAllTikomaAlertsUseCase.invoke(limit);
+            // Validate pagination parameters
+            if (page < 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            if (size <= 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            
+            TikomaAlerts alerts = getAllTikomaAlertsUseCase.invoke(urgency, page, size, null);
             return ResponseEntity.ok(alerts);
         } catch (Exception e) {
             log.error("Error getting all tikoma alerts", e);

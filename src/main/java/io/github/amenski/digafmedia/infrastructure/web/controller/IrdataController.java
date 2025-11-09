@@ -3,7 +3,12 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPosts;
 import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
-import io.github.amenski.digafmedia.usecase.irdata.*;
+import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
+import io.github.amenski.digafmedia.usecase.irdata.CreateIrdataPostUseCase;
+import io.github.amenski.digafmedia.usecase.irdata.DeleteIrdataPostUseCase;
+import io.github.amenski.digafmedia.usecase.irdata.GetAllIrdataPostsUseCase;
+import io.github.amenski.digafmedia.usecase.irdata.GetIrdataPostByIdUseCase;
+import io.github.amenski.digafmedia.usecase.irdata.UpdateIrdataPostUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -38,8 +43,17 @@ public class IrdataController {
     }
 
     @GetMapping
-    public ResponseEntity<IrdataPosts> getAllPosts(@RequestParam(required = false) IrdataStatus status) {
+     public ResponseEntity<IrdataPosts> getAllPosts(
+            @RequestParam(required = false) IrdataStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
+            // Validate pagination parameters using centralized utility
+            ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
+            if (validationError != null) {
+                return (ResponseEntity<IrdataPosts>) validationError;
+            }
+            
             IrdataPosts posts = getAllIrdataPostsUseCase.invoke(status);
             return ResponseEntity.ok(posts);
         } catch (Exception e) {

@@ -3,7 +3,15 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPosts;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
-import io.github.amenski.digafmedia.usecase.afalgun.*;
+import io.github.amenski.digafmedia.usecase.afalgun.CreateAfalgunPostUseCase;
+import io.github.amenski.digafmedia.usecase.afalgun.DeleteAfalgunPostUseCase;
+import io.github.amenski.digafmedia.usecase.afalgun.GetAfalgunPostByIdUseCase;
+import io.github.amenski.digafmedia.usecase.afalgun.GetAllAfalgunPostsUseCase;
+import io.github.amenski.digafmedia.usecase.afalgun.UpdateAfalgunPostStatusUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -36,9 +44,26 @@ public class AfalgunController {
     }
 
     @GetMapping
-    public ResponseEntity<AfalgunPosts> getAllPosts(@RequestParam(required = false) AfalgunStatus status) {
+    @Operation(summary = "Get Afalgun posts", description = "Retrieve Afalgun posts with optional filtering and pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Posts retrieved successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<AfalgunPosts> getAllPosts(
+            @Parameter(description = "Filter by post status") @RequestParam(required = false) AfalgunStatus status,
+            @Parameter(description = "Page number (0-based)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Number of items per page", example = "20") @RequestParam(defaultValue = "20") int size) {
         try {
-            AfalgunPosts posts = getAllAfalgunPostsUseCase.invoke(status);
+            // Validate pagination parameters
+            if (page < 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            if (size <= 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            
+            AfalgunPosts posts = getAllAfalgunPostsUseCase.invoke(status, page, size);
             return ResponseEntity.ok(posts);
         } catch (Exception e) {
             log.error("Error getting all afalgun posts", e);

@@ -4,6 +4,8 @@ import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.IrdataPostEntity;
 import io.github.amenski.digafmedia.domain.repository.IrdataRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -20,13 +22,13 @@ public class IrdataDbRepository implements IrdataRepository {
     }
 
     @Override
-    public List<IrdataPost> findAll() {
-        return irdataJpaRepository.findAll().stream().map(this::toDomain).toList();
+    public List<IrdataPost> findRecent(int limit) {
+        return irdataJpaRepository.findRecent(limit).stream().map(this::toDomain).toList();
     }
 
     @Override
-    public List<IrdataPost> findByStatus(IrdataStatus status) {
-        return irdataJpaRepository.findByStatus(status).stream().map(this::toDomain).toList();
+    public List<IrdataPost> findRecentByStatus(IrdataStatus status, int limit) {
+        return irdataJpaRepository.findRecentByStatus(status, limit).stream().map(this::toDomain).toList();
     }
 
     @Override
@@ -48,6 +50,7 @@ public class IrdataDbRepository implements IrdataRepository {
     public void deleteById(Long id) {
         irdataJpaRepository.deleteById(id);
     }
+
 
     private IrdataPost toDomain(IrdataPostEntity entity) {
         return new IrdataPost(

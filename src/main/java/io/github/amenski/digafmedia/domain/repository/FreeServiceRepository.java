@@ -15,6 +15,14 @@ public interface FreeServiceRepository {
 
     List<FreeService> findByLocationContaining(String location);
 
+    List<FreeService> findAllPaginated(int page, int size);
+
+    List<FreeService> findByActivePaginated(Boolean isActive, int page, int size);
+
+    long count();
+
+    long countByActive(Boolean isActive);
+
     Optional<FreeService> findById(Long id);
 
     FreeService save(FreeService service);

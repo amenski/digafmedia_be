@@ -2,6 +2,7 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Comment;
 import io.github.amenski.digafmedia.domain.Comments;
+import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.CreateCommentUseCase;
 import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
 import io.github.amenski.digafmedia.usecase.GetAllCommentsUseCase;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,9 +43,17 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<Comments> getAllComments() {
+    public ResponseEntity<Comments> getAllComments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            Comments comments = getAllCommentsUseCase.invoke();
+            // Validate pagination parameters using centralized utility
+            ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
+            if (validationError != null) {
+                return (ResponseEntity<Comments>) validationError;
+            }
+            
+            Comments comments = getAllCommentsUseCase.invoke(page, size);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
             log.error("Error getting all comments", e);

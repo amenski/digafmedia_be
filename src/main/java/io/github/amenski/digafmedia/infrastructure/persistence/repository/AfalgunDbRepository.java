@@ -4,6 +4,9 @@ import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.AfalgunPostEntity;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -27,6 +30,28 @@ public class AfalgunDbRepository implements AfalgunRepository {
     @Override
     public List<AfalgunPost> findByStatus(AfalgunStatus status) {
         return afalgunJpaRepository.findByStatus(status).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<AfalgunPost> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return afalgunJpaRepository.findAll(pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<AfalgunPost> findByStatusPaginated(AfalgunStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return afalgunJpaRepository.findByStatus(status, pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public long count() {
+        return afalgunJpaRepository.count();
+    }
+
+    @Override
+    public long countByStatus(AfalgunStatus status) {
+        return afalgunJpaRepository.countByStatus(status);
     }
 
     @Override

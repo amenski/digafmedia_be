@@ -8,9 +8,9 @@ import java.util.Optional;
 
 public interface IrdataRepository {
 
-    List<IrdataPost> findAll();
+    List<IrdataPost> findRecent(int limit);
 
-    List<IrdataPost> findByStatus(IrdataStatus status);
+    List<IrdataPost> findRecentByStatus(IrdataStatus status, int limit);
 
     Optional<IrdataPost> findById(Long id);
 

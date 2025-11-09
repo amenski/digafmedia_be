@@ -1,7 +1,9 @@
 package io.github.amenski.digafmedia.infrastructure.web.controller;
 
+import io.github.amenski.digafmedia.domain.PagedResult;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonials;
+import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.withyou.ApproveWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.CreateWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.DeleteWithYouTestimonialUseCase;
@@ -35,10 +37,22 @@ public class WithYouController {
     }
 
     @GetMapping
-    public ResponseEntity<WithYouTestimonials> getAllTestimonials(@RequestParam(required = false) Boolean isApproved) {
+    public ResponseEntity<?> getAllTestimonials(
+            @RequestParam(required = false) Boolean isApproved,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            WithYouTestimonials testimonials = getAllWithYouTestimonialsUseCase.invoke(isApproved);
+            // Validate pagination parameters using centralized utility
+            ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
+            if (validationError != null) {
+                return validationError;
+            }
+            
+            WithYouTestimonials testimonials = getAllWithYouTestimonialsUseCase.invoke(isApproved, page, size);
             return ResponseEntity.ok(testimonials);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid pagination parameters: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             log.error("Error getting all with-you testimonials", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

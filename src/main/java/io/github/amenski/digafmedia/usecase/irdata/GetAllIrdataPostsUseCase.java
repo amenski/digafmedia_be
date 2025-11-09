@@ -13,9 +13,13 @@ public class GetAllIrdataPostsUseCase {
     }
 
     public IrdataPosts invoke(IrdataStatus status) {
+        // Business rule: return a reasonable number of records for performance
+        // without exposing pagination details to the use case
+        final int DEFAULT_LIMIT = 50;
+        
         if (status == null) {
-            return new IrdataPosts(irdataRepository.findAll());
+            return new IrdataPosts(irdataRepository.findRecent(DEFAULT_LIMIT));
         }
-        return new IrdataPosts(irdataRepository.findByStatus(status));
+        return new IrdataPosts(irdataRepository.findRecentByStatus(status, DEFAULT_LIMIT));
     }
 }

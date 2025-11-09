@@ -9,6 +9,10 @@ public interface CommentRepository {
 
     List<Comment> findAll();
 
+    List<Comment> findAllPaginated(int page, int size);
+
+    long count();
+
     Optional<Comment> findById(Long id);
 
     Comment save(Comment comment);

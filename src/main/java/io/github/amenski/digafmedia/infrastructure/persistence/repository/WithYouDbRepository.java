@@ -3,6 +3,9 @@ package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.WithYouTestimonialEntity;
 import io.github.amenski.digafmedia.domain.repository.WithYouRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -46,6 +49,28 @@ public class WithYouDbRepository implements WithYouRepository {
     @Override
     public void deleteById(Long id) {
         withYouJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public List<WithYouTestimonial> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return withYouJpaRepository.findAll(pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<WithYouTestimonial> findByApprovedPaginated(boolean approved, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return withYouJpaRepository.findByIsApproved(approved, pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public long count() {
+        return withYouJpaRepository.count();
+    }
+
+    @Override
+    public long countByApproved(boolean approved) {
+        return withYouJpaRepository.countByIsApproved(approved);
     }
 
     private WithYouTestimonial toDomain(WithYouTestimonialEntity entity) {

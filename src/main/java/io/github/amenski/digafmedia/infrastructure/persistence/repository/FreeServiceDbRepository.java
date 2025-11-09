@@ -3,6 +3,9 @@ package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 import io.github.amenski.digafmedia.domain.freeservice.FreeService;
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.FreeServiceEntity;
 import io.github.amenski.digafmedia.domain.repository.FreeServiceRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -24,8 +27,20 @@ public class FreeServiceDbRepository implements FreeServiceRepository {
     }
 
     @Override
+    public List<FreeService> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return freeServiceJpaRepository.findAllByOrderByCreatedAtDesc(pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
     public List<FreeService> findByActive(Boolean isActive) {
         return freeServiceJpaRepository.findByIsActive(isActive).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<FreeService> findByActivePaginated(Boolean isActive, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return freeServiceJpaRepository.findByIsActive(isActive, pageable).stream().map(this::toDomain).toList();
     }
 
     @Override
@@ -36,6 +51,16 @@ public class FreeServiceDbRepository implements FreeServiceRepository {
     @Override
     public List<FreeService> findByLocationContaining(String location) {
         return freeServiceJpaRepository.findByLocationContaining(location).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public long count() {
+        return freeServiceJpaRepository.count();
+    }
+
+    @Override
+    public long countByActive(Boolean isActive) {
+        return freeServiceJpaRepository.findByIsActive(isActive).size();
     }
 
     @Override

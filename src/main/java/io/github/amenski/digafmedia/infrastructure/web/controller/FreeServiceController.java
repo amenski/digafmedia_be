@@ -35,9 +35,20 @@ public class FreeServiceController {
     }
 
     @GetMapping
-    public ResponseEntity<FreeServices> getAllServices(@RequestParam(required = false) Boolean isActive) {
+    public ResponseEntity<FreeServices> getAllServices(
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            FreeServices services = getAllFreeServicesUseCase.invoke(isActive);
+            // Validate pagination parameters
+            if (page < 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            if (size <= 0) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            
+            FreeServices services = getAllFreeServicesUseCase.invoke(isActive, page, size);
             return ResponseEntity.ok(services);
         } catch (Exception e) {
             log.error("Error getting all free services", e);

@@ -11,7 +11,13 @@ public class GetAllCommentsUseCase {
         this.commentRepository = commentRepository;
     }
 
-    public Comments invoke() {
-        return new Comments(commentRepository.findAll());
+    public Comments invoke(Integer page, Integer size) {
+        if (page != null && size != null) {
+            var comments = commentRepository.findAllPaginated(page, size);
+            var total = commentRepository.count();
+            return Comments.of(comments, page, size, total);
+        } else {
+            return new Comments(commentRepository.findAll());
+        }
     }
 }
