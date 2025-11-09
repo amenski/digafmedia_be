@@ -1,6 +1,7 @@
 package io.github.amenski.digafmedia.usecase.afalgun;
 
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
 
 public class DeleteAfalgunPostUseCase {
 
@@ -10,7 +11,7 @@ public class DeleteAfalgunPostUseCase {
         this.afalgunRepository = afalgunRepository;
     }
 
-    public void invoke(Long id) {
+    public void execute(Long id, CurrentUserAdapter currentUser) {
         afalgunRepository.deleteById(id);
     }
 }

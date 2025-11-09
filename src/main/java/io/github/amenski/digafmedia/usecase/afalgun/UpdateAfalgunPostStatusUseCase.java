@@ -2,7 +2,11 @@ package io.github.amenski.digafmedia.usecase.afalgun;
 
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
+import io.github.amenski.digafmedia.domain.afalgun.UpdateAfalgunPostCommand;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
+
+import java.time.OffsetDateTime;
 
 public class UpdateAfalgunPostStatusUseCase {
 
@@ -12,7 +16,7 @@ public class UpdateAfalgunPostStatusUseCase {
         this.afalgunRepository = afalgunRepository;
     }
 
-    public AfalgunPost invoke(Long id, AfalgunStatus newStatus) {
+    public AfalgunPost execute(Long id, UpdateAfalgunPostCommand command, CurrentUserAdapter currentUser) {
         AfalgunPost existing = afalgunRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Afalgun post not found with id: " + id));
 
@@ -25,9 +29,9 @@ public class UpdateAfalgunPostStatusUseCase {
                 existing.contactPhone(),
                 existing.contactEmail(),
                 existing.description(),
-                newStatus,
+                command.status(),
                 existing.createdAt(),
-                existing.modifiedAt()
+                OffsetDateTime.now()
         );
 
         return afalgunRepository.save(updated);

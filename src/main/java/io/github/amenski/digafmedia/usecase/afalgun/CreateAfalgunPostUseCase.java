@@ -3,7 +3,9 @@ package io.github.amenski.digafmedia.usecase.afalgun;
 import io.github.amenski.digafmedia.domain.Validator;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
+import io.github.amenski.digafmedia.domain.afalgun.CreateAfalgunPostCommand;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
 
 import java.time.OffsetDateTime;
 
@@ -17,25 +19,22 @@ public class CreateAfalgunPostUseCase {
         this.afalgunPostValidator = afalgunPostValidator;
     }
 
-    public AfalgunPost invoke(AfalgunPost post) {
-        // Set defaults if missing
-        AfalgunPost toPersist = post;
-        if (post.status() == null) {
-            toPersist = new AfalgunPost(
-                    post.id(),
-                    post.missingPersonName(),
-                    post.age(),
-                    post.lastSeenLocation(),
-                    post.contactName(),
-                    post.contactPhone(),
-                    post.contactEmail(),
-                    post.description(),
-                    AfalgunStatus.ACTIVE,
-                    post.createdAt(),
-                    post.modifiedAt()
-            );
-        }
-        afalgunPostValidator.validate(toPersist);
-        return afalgunRepository.save(toPersist);
+    public AfalgunPost execute(CreateAfalgunPostCommand command, CurrentUserAdapter currentUser) {
+        AfalgunPost post = new AfalgunPost(
+                null,
+                command.missingPersonName(),
+                command.age(),
+                command.lastSeenLocation(),
+                command.contactName(),
+                command.contactPhone(),
+                command.contactEmail(),
+                command.description(),
+                command.status(),
+                OffsetDateTime.now(),
+                null
+        );
+        
+        afalgunPostValidator.validate(post);
+        return afalgunRepository.save(post);
     }
 }

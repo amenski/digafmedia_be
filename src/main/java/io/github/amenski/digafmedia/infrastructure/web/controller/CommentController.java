@@ -2,15 +2,28 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Comment;
 import io.github.amenski.digafmedia.domain.Comments;
+import io.github.amenski.digafmedia.domain.ValidationGroups;
+import io.github.amenski.digafmedia.infrastructure.web.mapper.CommentWebMapper;
+import io.github.amenski.digafmedia.infrastructure.web.model.CommentResponse;
+import io.github.amenski.digafmedia.infrastructure.web.model.CreateCommentRequest;
+import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.CreateCommentUseCase;
 import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
 import io.github.amenski.digafmedia.usecase.GetAllCommentsUseCase;
 import io.github.amenski.digafmedia.usecase.GetCommentByIdUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +34,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("v1/comments")
+@RequestMapping("/v1/comments")
+@Transactional(readOnly = true)
 public class CommentController {
 
     private static final Logger log = LoggerFactory.getLogger(CommentController.class);
@@ -30,16 +44,19 @@ public class CommentController {
     private final GetCommentByIdUseCase getCommentByIdUseCase;
     private final CreateCommentUseCase createCommentUseCase;
     private final DeleteCommentUseCase deleteCommentUseCase;
+    private final CommentWebMapper commentWebMapper;
 
     public CommentController(
             GetAllCommentsUseCase getAllCommentsUseCase,
             GetCommentByIdUseCase getCommentByIdUseCase,
             CreateCommentUseCase createCommentUseCase,
-            DeleteCommentUseCase deleteCommentUseCase) {
+            DeleteCommentUseCase deleteCommentUseCase,
+            CommentWebMapper commentWebMapper) {
         this.getAllCommentsUseCase = getAllCommentsUseCase;
         this.getCommentByIdUseCase = getCommentByIdUseCase;
         this.createCommentUseCase = createCommentUseCase;
         this.deleteCommentUseCase = deleteCommentUseCase;
+        this.commentWebMapper = commentWebMapper;
     }
 
     @GetMapping
