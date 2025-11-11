@@ -1,9 +1,8 @@
 package io.github.amenski.digafmedia.usecase.irdata;
 
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.repository.IrdataRepository;
-
-import java.util.Optional;
 
 public class GetIrdataPostByIdUseCase {
 
@@ -13,7 +12,8 @@ public class GetIrdataPostByIdUseCase {
         this.irdataRepository = irdataRepository;
     }
 
-    public Optional<IrdataPost> invoke(Long id) {
-        return irdataRepository.findById(id);
+    public IrdataPost invoke(Long id) {
+        return irdataRepository.findById(id)
+                .orElseThrow(() -> EntityNotFoundException.forEntity("IrdataPost", id));
     }
 }

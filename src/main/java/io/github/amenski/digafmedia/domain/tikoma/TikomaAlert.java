@@ -11,4 +11,24 @@ public record TikomaAlert(
     TikomaUrgency urgency,
     OffsetDateTime createdAt,
     OffsetDateTime modifiedAt
-) {}
+) {
+    /**
+     * Factory method to create a TikomaAlert with default urgency if not provided.
+     * This encapsulates the business rule that new alerts default to MEDIUM urgency.
+     */
+    public static TikomaAlert withDefaults(TikomaAlert alert) {
+        if (alert.urgency() != null) {
+            return alert;
+        }
+        return new TikomaAlert(
+                alert.id(),
+                alert.title(),
+                alert.message(),
+                alert.contactName(),
+                alert.contactPhone(),
+                TikomaUrgency.MEDIUM,
+                alert.createdAt(),
+                alert.modifiedAt()
+        );
+    }
+}

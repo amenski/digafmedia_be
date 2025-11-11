@@ -1,5 +1,6 @@
 package io.github.amenski.digafmedia.usecase.freeservice;
 
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.repository.FreeServiceRepository;
 
 public class DeleteFreeServiceUseCase {
@@ -11,6 +12,10 @@ public class DeleteFreeServiceUseCase {
     }
 
     public void invoke(Long id) {
+        // Check if entity exists before deletion
+        if (!freeServiceRepository.existsById(id)) {
+            throw EntityNotFoundException.forEntity("FreeService", id);
+        }
         freeServiceRepository.deleteById(id);
     }
 }

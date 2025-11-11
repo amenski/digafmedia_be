@@ -1,33 +1,25 @@
 package io.github.amenski.digafmedia.usecase;
 
 import io.github.amenski.digafmedia.domain.Comment;
-import io.github.amenski.digafmedia.domain.Validator;
+import io.github.amenski.digafmedia.domain.exception.ValidationException;
 import io.github.amenski.digafmedia.domain.repository.CommentRepository;
-import java.time.OffsetDateTime;
+import io.github.amenski.digafmedia.domain.rules.CommentValidator;
 
 public class CreateCommentUseCase {
 
     private final CommentRepository commentRepository;
-    private final Validator<Comment> commentValidator;
 
-    public CreateCommentUseCase(CommentRepository commentRepository, Validator<Comment> commentValidator) {
+    public CreateCommentUseCase(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
-        this.commentValidator = commentValidator;
     }
 
     public Comment invoke(Comment comment) {
-        // Set creation timestamp if missing and validate business rules
-        Comment toPersist = comment;
-        if (comment.createdAt() == null) {
-            toPersist = new Comment(
-                    comment.id(),
-                    comment.name(),
-                    comment.email(),
-                    comment.content(),
-                    OffsetDateTime.now()
-            );
+        var validationResult = CommentValidator.validate(comment);
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult);
         }
-        commentValidator.validate(toPersist);
+        
+        Comment toPersist = Comment.withDefaults(comment);
         return commentRepository.save(toPersist);
     }
 }

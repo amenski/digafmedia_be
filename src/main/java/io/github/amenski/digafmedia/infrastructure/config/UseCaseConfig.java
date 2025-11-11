@@ -1,13 +1,6 @@
 package io.github.amenski.digafmedia.infrastructure.config;
 
-import io.github.amenski.digafmedia.domain.Comment;
-import io.github.amenski.digafmedia.domain.Validator;
-import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
-import io.github.amenski.digafmedia.domain.freeservice.FreeService;
-import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.repository.*;
-import io.github.amenski.digafmedia.domain.tikoma.TikomaAlert;
-import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.usecase.CreateCommentUseCase;
 import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
 import io.github.amenski.digafmedia.usecase.GetAllCommentsUseCase;
@@ -35,8 +28,8 @@ public class UseCaseConfig {
   }
 
   @Bean
-  public CreateCommentUseCase createCommentUseCase(CommentRepository commentRepository, Validator<Comment> commentValidator) {
-    return new CreateCommentUseCase(commentRepository, commentValidator);
+  public CreateCommentUseCase createCommentUseCase(CommentRepository commentRepository) {
+    return new CreateCommentUseCase(commentRepository);
   }
 
   @Bean
@@ -46,8 +39,8 @@ public class UseCaseConfig {
 
   // Afalgun Use Cases
   @Bean
-  public CreateAfalgunPostUseCase createAfalgunPostUseCase(AfalgunRepository afalgunRepository, Validator<AfalgunPost> afalgunPostValidator) {
-    return new CreateAfalgunPostUseCase(afalgunRepository, afalgunPostValidator);
+  public CreateAfalgunPostUseCase createAfalgunPostUseCase(AfalgunRepository afalgunRepository) {
+    return new CreateAfalgunPostUseCase(afalgunRepository);
   }
 
   @Bean
@@ -72,8 +65,8 @@ public class UseCaseConfig {
 
   // Irdata Use Cases
   @Bean
-  public CreateIrdataPostUseCase createIrdataPostUseCase(IrdataRepository irdataRepository, Validator<IrdataPost> irdataPostValidator) {
-    return new CreateIrdataPostUseCase(irdataRepository, irdataPostValidator);
+  public CreateIrdataPostUseCase createIrdataPostUseCase(IrdataRepository irdataRepository) {
+    return new CreateIrdataPostUseCase(irdataRepository);
   }
 
   @Bean
@@ -98,8 +91,8 @@ public class UseCaseConfig {
 
   // Tikoma Use Cases
   @Bean
-  public CreateTikomaAlertUseCase createTikomaAlertUseCase(TikomaRepository tikomaRepository, Validator<TikomaAlert> tikomaAlertValidator) {
-    return new CreateTikomaAlertUseCase(tikomaRepository, tikomaAlertValidator);
+  public CreateTikomaAlertUseCase createTikomaAlertUseCase(TikomaRepository tikomaRepository) {
+    return new CreateTikomaAlertUseCase(tikomaRepository);
   }
 
   @Bean
@@ -114,8 +107,8 @@ public class UseCaseConfig {
 
   // Free Service Use Cases
   @Bean
-  public CreateFreeServiceUseCase createFreeServiceUseCase(FreeServiceRepository freeServiceRepository, Validator<FreeService> freeServiceValidator) {
-    return new CreateFreeServiceUseCase(freeServiceRepository, freeServiceValidator);
+  public CreateFreeServiceUseCase createFreeServiceUseCase(FreeServiceRepository freeServiceRepository) {
+    return new CreateFreeServiceUseCase(freeServiceRepository);
   }
 
   @Bean
@@ -135,8 +128,8 @@ public class UseCaseConfig {
 
   // With You Use Cases
   @Bean
-  public CreateWithYouTestimonialUseCase createWithYouTestimonialUseCase(WithYouRepository withYouRepository, Validator<WithYouTestimonial> withYouTestimonialValidator) {
-    return new CreateWithYouTestimonialUseCase(withYouRepository, withYouTestimonialValidator);
+  public CreateWithYouTestimonialUseCase createWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
+    return new CreateWithYouTestimonialUseCase(withYouRepository);
   }
 
   @Bean

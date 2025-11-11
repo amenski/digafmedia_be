@@ -1,9 +1,8 @@
 package io.github.amenski.digafmedia.usecase;
 
 import io.github.amenski.digafmedia.domain.Comment;
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.repository.CommentRepository;
-
-import java.util.Optional;
 
 public class GetCommentByIdUseCase {
 
@@ -13,7 +12,8 @@ public class GetCommentByIdUseCase {
         this.commentRepository = commentRepository;
     }
 
-    public Optional<Comment> invoke(Long id) {
-        return commentRepository.findById(id);
+    public Comment invoke(Long id) {
+        return commentRepository.findById(id)
+                .orElseThrow(() -> EntityNotFoundException.forEntity("Comment", id));
     }
 }

@@ -1,40 +1,26 @@
 package io.github.amenski.digafmedia.usecase.afalgun;
 
-import io.github.amenski.digafmedia.domain.Validator;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
-import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
 import io.github.amenski.digafmedia.domain.afalgun.CreateAfalgunPostCommand;
+import io.github.amenski.digafmedia.domain.exception.ValidationException;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
-import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
-
-import java.time.OffsetDateTime;
+import io.github.amenski.digafmedia.domain.rules.AfalgunValidator;
 
 public class CreateAfalgunPostUseCase {
 
     private final AfalgunRepository afalgunRepository;
-    private final Validator<AfalgunPost> afalgunPostValidator;
 
-    public CreateAfalgunPostUseCase(AfalgunRepository afalgunRepository, Validator<AfalgunPost> afalgunPostValidator) {
+    public CreateAfalgunPostUseCase(AfalgunRepository afalgunRepository) {
         this.afalgunRepository = afalgunRepository;
-        this.afalgunPostValidator = afalgunPostValidator;
     }
 
-    public AfalgunPost execute(CreateAfalgunPostCommand command, CurrentUserAdapter currentUser) {
-        AfalgunPost post = new AfalgunPost(
-                null,
-                command.missingPersonName(),
-                command.age(),
-                command.lastSeenLocation(),
-                command.contactName(),
-                command.contactPhone(),
-                command.contactEmail(),
-                command.description(),
-                command.status(),
-                OffsetDateTime.now(),
-                null
-        );
+    public AfalgunPost invoke(CreateAfalgunPostCommand command) {
+        var validationResult = AfalgunValidator.validateCreateCommand(command);
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult);
+        }
         
-        afalgunPostValidator.validate(post);
+        AfalgunPost post = AfalgunPost.fromCommand(command);
         return afalgunRepository.save(post);
     }
 }

@@ -12,6 +12,14 @@ public interface IrdataRepository {
 
     List<IrdataPost> findRecentByStatus(IrdataStatus status, int limit);
 
+    List<IrdataPost> findAllPaginated(int page, int size);
+
+    List<IrdataPost> findByStatusPaginated(IrdataStatus status, int page, int size);
+
+    long count();
+
+    long countByStatus(IrdataStatus status);
+
     Optional<IrdataPost> findById(Long id);
 
     IrdataPost save(IrdataPost post);

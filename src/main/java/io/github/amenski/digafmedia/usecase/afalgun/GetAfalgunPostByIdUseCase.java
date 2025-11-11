@@ -13,7 +13,7 @@ public class GetAfalgunPostByIdUseCase {
         this.afalgunRepository = afalgunRepository;
     }
 
-    public Optional<AfalgunPost> execute(Long id) {
+    public Optional<AfalgunPost> invoke(Long id) {
         return afalgunRepository.findById(id);
     }
 }

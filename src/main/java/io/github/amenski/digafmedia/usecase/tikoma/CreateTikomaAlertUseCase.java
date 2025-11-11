@@ -1,36 +1,26 @@
 package io.github.amenski.digafmedia.usecase.tikoma;
 
-import io.github.amenski.digafmedia.domain.Validator;
+import io.github.amenski.digafmedia.domain.exception.ValidationException;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaAlert;
-import io.github.amenski.digafmedia.domain.tikoma.TikomaUrgency;
 import io.github.amenski.digafmedia.domain.repository.TikomaRepository;
+import io.github.amenski.digafmedia.domain.rules.TikomaValidator;
 
 public class CreateTikomaAlertUseCase {
 
     private final TikomaRepository tikomaRepository;
-    private final Validator<TikomaAlert> tikomaAlertValidator;
 
-    public CreateTikomaAlertUseCase(TikomaRepository tikomaRepository, Validator<TikomaAlert> tikomaAlertValidator) {
+    public CreateTikomaAlertUseCase(TikomaRepository tikomaRepository) {
         this.tikomaRepository = tikomaRepository;
-        this.tikomaAlertValidator = tikomaAlertValidator;
     }
 
     public TikomaAlert invoke(TikomaAlert alert) {
-        // Set default urgency if missing
-        TikomaAlert toPersist = alert;
-        if (alert.urgency() == null) {
-            toPersist = new TikomaAlert(
-                    alert.id(),
-                    alert.title(),
-                    alert.message(),
-                    alert.contactName(),
-                    alert.contactPhone(),
-                    TikomaUrgency.MEDIUM,
-                    alert.createdAt(),
-                    alert.modifiedAt()
-            );
+        TikomaAlert toPersist = TikomaAlert.withDefaults(alert);
+        
+        var validationResult = TikomaValidator.validate(toPersist);
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult);
         }
-        tikomaAlertValidator.validate(toPersist);
+        
         return tikomaRepository.save(toPersist);
     }
 }

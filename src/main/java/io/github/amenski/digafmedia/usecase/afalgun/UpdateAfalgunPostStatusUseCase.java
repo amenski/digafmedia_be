@@ -1,12 +1,11 @@
 package io.github.amenski.digafmedia.usecase.afalgun;
 
+import io.github.amenski.digafmedia.domain.AuthorizationException;
+import io.github.amenski.digafmedia.domain.CurrentUser;
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunPost;
 import io.github.amenski.digafmedia.domain.afalgun.AfalgunStatus;
-import io.github.amenski.digafmedia.domain.afalgun.UpdateAfalgunPostCommand;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
-import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
-
-import java.time.OffsetDateTime;
 
 public class UpdateAfalgunPostStatusUseCase {
 
@@ -16,24 +15,16 @@ public class UpdateAfalgunPostStatusUseCase {
         this.afalgunRepository = afalgunRepository;
     }
 
-    public AfalgunPost execute(Long id, UpdateAfalgunPostCommand command, CurrentUserAdapter currentUser) {
+    public AfalgunPost invoke(Long id, AfalgunStatus status, CurrentUser currentUser) {
+        // Only admins can update post status
+        if (!currentUser.hasRole("ADMIN")) {
+            throw AuthorizationException.forOperation("update afalgun post status");
+        }
+
         AfalgunPost existing = afalgunRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Afalgun post not found with id: " + id));
+                .orElseThrow(() -> EntityNotFoundException.forEntity("AfalgunPost", id));
 
-        AfalgunPost updated = new AfalgunPost(
-                existing.id(),
-                existing.missingPersonName(),
-                existing.age(),
-                existing.lastSeenLocation(),
-                existing.contactName(),
-                existing.contactPhone(),
-                existing.contactEmail(),
-                existing.description(),
-                command.status(),
-                existing.createdAt(),
-                OffsetDateTime.now()
-        );
-
+        AfalgunPost updated = existing.updateStatus(status);
         return afalgunRepository.save(updated);
     }
 }

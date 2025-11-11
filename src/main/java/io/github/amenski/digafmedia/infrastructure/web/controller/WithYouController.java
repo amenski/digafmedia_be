@@ -1,13 +1,18 @@
 package io.github.amenski.digafmedia.infrastructure.web.controller;
 
-import io.github.amenski.digafmedia.domain.PagedResult;
+import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonials;
+import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.withyou.ApproveWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.CreateWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.DeleteWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.GetAllWithYouTestimonialsUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,22 +42,32 @@ public class WithYouController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllTestimonials(
-            @RequestParam(required = false) Boolean isApproved,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+    @Operation(summary = "List with-you testimonials", description = "Get all with-you testimonials with optional approval filtering and pagination")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Testimonials retrieved successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<PaginatedResponse<WithYouTestimonial>> getAllTestimonials(
+            @Parameter(description = "Filter by approval status") @RequestParam(required = false) Boolean isApproved,
+            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") int size) {
         try {
-            // Validate pagination parameters using centralized utility
             ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
             if (validationError != null) {
-                return validationError;
+                return (ResponseEntity<PaginatedResponse<WithYouTestimonial>>) validationError;
             }
             
-            WithYouTestimonials testimonials = getAllWithYouTestimonialsUseCase.invoke(isApproved, page, size);
-            return ResponseEntity.ok(testimonials);
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid pagination parameters: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            var pagedResult = getAllWithYouTestimonialsUseCase.invoke(isApproved, page, size);
+            
+            PaginatedResponse<WithYouTestimonial> response = new PaginatedResponse<>(
+                    pagedResult.getContent(),
+                    pagedResult.getPage(),
+                    pagedResult.getSize(),
+                    pagedResult.getTotalElements(),
+                    pagedResult.getTotalPages()
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error getting all with-you testimonials", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -60,6 +75,12 @@ public class WithYouController {
     }
 
     @PostMapping
+    @Operation(summary = "Create with-you testimonial")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Testimonial created successfully"),
+        @ApiResponse(responseCode = "400", description = "Validation error"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<WithYouTestimonial> createTestimonial(@RequestBody WithYouTestimonialRequest request) {
         try {
             WithYouTestimonial testimonial = new WithYouTestimonial(
@@ -74,7 +95,7 @@ public class WithYouController {
             );
             WithYouTestimonial createdTestimonial = createWithYouTestimonialUseCase.invoke(testimonial);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTestimonial);
-        } catch (IllegalArgumentException e) {
+        } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating with-you testimonial: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
@@ -84,7 +105,14 @@ public class WithYouController {
     }
 
     @PutMapping("/{id}/approve")
-    public ResponseEntity<WithYouTestimonial> approveTestimonial(@PathVariable Long id) {
+    @Operation(summary = "Approve with-you testimonial")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Testimonial approved successfully"),
+        @ApiResponse(responseCode = "404", description = "Testimonial not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<WithYouTestimonial> approveTestimonial(
+            @Parameter(description = "Testimonial ID") @PathVariable Long id) {
         try {
             WithYouTestimonial approved = approveWithYouTestimonialUseCase.invoke(id);
             return ResponseEntity.ok(approved);
@@ -98,7 +126,14 @@ public class WithYouController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTestimonial(@PathVariable Long id) {
+    @Operation(summary = "Delete with-you testimonial")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Testimonial deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Testimonial not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<Void> deleteTestimonial(
+            @Parameter(description = "Testimonial ID") @PathVariable Long id) {
         try {
             deleteWithYouTestimonialUseCase.invoke(id);
             return ResponseEntity.noContent().build();

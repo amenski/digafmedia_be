@@ -1,5 +1,6 @@
 package io.github.amenski.digafmedia.usecase.withyou;
 
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.repository.WithYouRepository;
 
 public class DeleteWithYouTestimonialUseCase {
@@ -11,6 +12,10 @@ public class DeleteWithYouTestimonialUseCase {
     }
 
     public void invoke(Long id) {
+        // Check if entity exists before deletion
+        if (!withYouRepository.existsById(id)) {
+            throw EntityNotFoundException.forEntity("WithYouTestimonial", id);
+        }
         withYouRepository.deleteById(id);
     }
 }

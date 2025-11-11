@@ -1,6 +1,7 @@
 package io.github.amenski.digafmedia.usecase.withyou;
 
-import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonials;
+import io.github.amenski.digafmedia.domain.PagedResult;
+import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.domain.repository.WithYouRepository;
 
 public class GetAllWithYouTestimonialsUseCase {
@@ -11,30 +12,14 @@ public class GetAllWithYouTestimonialsUseCase {
         this.withYouRepository = withYouRepository;
     }
 
-    public WithYouTestimonials invoke(Boolean approvedOnly, Integer page, Integer size) {
-        if (page != null && size != null) {
-            return getPaginatedTestimonials(approvedOnly, page, size);
-        } else {
-            return getNonPaginatedTestimonials(approvedOnly);
-        }
-    }
-
-    private WithYouTestimonials getPaginatedTestimonials(Boolean approvedOnly, int page, int size) {
+    public PagedResult<WithYouTestimonial> invoke(Boolean approvedOnly, int page, int size) {
         if (approvedOnly != null && approvedOnly) {
-            var testimonials = withYouRepository.findByApprovedPaginated(true, page, size);
-            var total = withYouRepository.countByApproved(true);
-            return WithYouTestimonials.of(testimonials, page, size, total);
-        } else {
-            var testimonials = withYouRepository.findAllPaginated(page, size);
-            var total = withYouRepository.count();
-            return WithYouTestimonials.of(testimonials, page, size, total);
+            var testimonials = withYouRepository.findApprovedPaginated(page, size);
+            var totalElements = withYouRepository.countApproved();
+            return new PagedResult<>(testimonials, totalElements, page, size);
         }
-    }
-
-    private WithYouTestimonials getNonPaginatedTestimonials(Boolean approvedOnly) {
-        if (approvedOnly != null && approvedOnly) {
-            return new WithYouTestimonials(withYouRepository.findApproved());
-        }
-        return new WithYouTestimonials(withYouRepository.findAll());
+        var testimonials = withYouRepository.findAllPaginated(page, size);
+        var totalElements = withYouRepository.count();
+        return new PagedResult<>(testimonials, totalElements, page, size);
     }
 }

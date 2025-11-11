@@ -1,7 +1,9 @@
 package io.github.amenski.digafmedia.usecase.afalgun;
 
+import io.github.amenski.digafmedia.domain.AuthorizationException;
+import io.github.amenski.digafmedia.domain.CurrentUser;
+import io.github.amenski.digafmedia.domain.EntityNotFoundException;
 import io.github.amenski.digafmedia.domain.repository.AfalgunRepository;
-import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
 
 public class DeleteAfalgunPostUseCase {
 
@@ -11,7 +13,16 @@ public class DeleteAfalgunPostUseCase {
         this.afalgunRepository = afalgunRepository;
     }
 
-    public void execute(Long id, CurrentUserAdapter currentUser) {
+    public void invoke(Long id, CurrentUser currentUser) {
+        // Only admins can delete posts
+        if (!currentUser.hasRole("ADMIN")) {
+            throw AuthorizationException.forOperation("delete afalgun post");
+        }
+
+        // Check if entity exists before deletion
+        if (!afalgunRepository.existsById(id)) {
+            throw EntityNotFoundException.forEntity("AfalgunPost", id);
+        }
         afalgunRepository.deleteById(id);
     }
 }

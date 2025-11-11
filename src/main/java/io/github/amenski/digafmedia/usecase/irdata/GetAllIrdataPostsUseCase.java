@@ -1,6 +1,7 @@
 package io.github.amenski.digafmedia.usecase.irdata;
 
-import io.github.amenski.digafmedia.domain.irdata.IrdataPosts;
+import io.github.amenski.digafmedia.domain.PagedResult;
+import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
 import io.github.amenski.digafmedia.domain.repository.IrdataRepository;
 
@@ -12,14 +13,14 @@ public class GetAllIrdataPostsUseCase {
         this.irdataRepository = irdataRepository;
     }
 
-    public IrdataPosts invoke(IrdataStatus status) {
-        // Business rule: return a reasonable number of records for performance
-        // without exposing pagination details to the use case
-        final int DEFAULT_LIMIT = 50;
-        
-        if (status == null) {
-            return new IrdataPosts(irdataRepository.findRecent(DEFAULT_LIMIT));
+    public PagedResult<IrdataPost> invoke(IrdataStatus status, int page, int size) {
+        if (status != null) {
+            var posts = irdataRepository.findByStatusPaginated(status, page, size);
+            var totalElements = irdataRepository.countByStatus(status);
+            return new PagedResult<>(posts, totalElements, page, size);
         }
-        return new IrdataPosts(irdataRepository.findRecentByStatus(status, DEFAULT_LIMIT));
+        var posts = irdataRepository.findAllPaginated(page, size);
+        var totalElements = irdataRepository.count();
+        return new PagedResult<>(posts, totalElements, page, size);
     }
 }

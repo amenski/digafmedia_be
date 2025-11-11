@@ -133,8 +133,11 @@ public class AfalgunController {
             @Validated(ValidationGroups.Update.class) @RequestBody UpdateAfalgunPostRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         
-        var command = afalgunWebMapper.update(request);
-        var updatedAfalgun = updateAfalgunPostStatusUseCase.execute(id, command, new CurrentUserAdapter(userPrincipal));
+        var updatedAfalgun = updateAfalgunPostStatusUseCase.execute(
+            id,
+            request.getStatus(),
+            new CurrentUserAdapter(userPrincipal)
+        );
         return ResponseEntity.ok(AfalgunPostResponse.fromAfalgunPost(updatedAfalgun));
     }
 

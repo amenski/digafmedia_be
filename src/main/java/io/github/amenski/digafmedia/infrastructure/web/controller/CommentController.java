@@ -2,6 +2,8 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.Comment;
 import io.github.amenski.digafmedia.domain.Comments;
+import io.github.amenski.digafmedia.domain.DomainValidationException;
+import io.github.amenski.digafmedia.domain.PagedResult;
 import io.github.amenski.digafmedia.domain.ValidationGroups;
 import io.github.amenski.digafmedia.infrastructure.web.mapper.CommentWebMapper;
 import io.github.amenski.digafmedia.infrastructure.web.model.CommentResponse;
@@ -60,18 +62,30 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<Comments> getAllComments(
+    public ResponseEntity<PaginatedResponse<CommentResponse>> getAllComments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {
             // Validate pagination parameters using centralized utility
             ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
             if (validationError != null) {
-                return (ResponseEntity<Comments>) validationError;
+                return (ResponseEntity<PaginatedResponse<CommentResponse>>) validationError;
             }
             
-            Comments comments = getAllCommentsUseCase.invoke(page, size);
-            return ResponseEntity.ok(comments);
+            var pagedResult = getAllCommentsUseCase.invoke(page, size);
+            
+            List<CommentResponse> commentResponses = pagedResult.getContent().stream()
+                    .map(commentWebMapper::toResponse)
+                    .toList();
+            
+            PaginatedResponse<CommentResponse> response = new PaginatedResponse<>(
+                    commentResponses,
+                    pagedResult.getPage(),
+                    pagedResult.getSize(),
+                    pagedResult.getTotalElements(),
+                    pagedResult.getTotalPages()
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error getting all comments", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -102,7 +116,7 @@ public class CommentController {
             );
             Comment createdComment = createCommentUseCase.invoke(comment);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
-        } catch (io.github.amenski.digafmedia.domain.DomainValidationException e) {
+        } catch (DomainValidationException e) {
             log.warn("Validation error creating comment: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {

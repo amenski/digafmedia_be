@@ -1,7 +1,9 @@
 package io.github.amenski.digafmedia.infrastructure.web.controller;
 
+import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.freeservice.FreeService;
 import io.github.amenski.digafmedia.domain.freeservice.FreeServices;
+import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.freeservice.CreateFreeServiceUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.DeleteFreeServiceUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.GetAllFreeServicesUseCase;
@@ -35,21 +37,27 @@ public class FreeServiceController {
     }
 
     @GetMapping
-    public ResponseEntity<FreeServices> getAllServices(
+    public ResponseEntity<PaginatedResponse<FreeService>> getAllServices(
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         try {
-            // Validate pagination parameters
-            if (page < 0) {
-                return ResponseEntity.badRequest().body(null);
-            }
-            if (size <= 0) {
-                return ResponseEntity.badRequest().body(null);
+            // Validate pagination parameters using centralized utility
+            ResponseEntity<?> validationError = PaginationUtils.validatePaginationParameters(page, size);
+            if (validationError != null) {
+                return (ResponseEntity<PaginatedResponse<FreeService>>) validationError;
             }
             
-            FreeServices services = getAllFreeServicesUseCase.invoke(isActive, page, size);
-            return ResponseEntity.ok(services);
+            var pagedResult = getAllFreeServicesUseCase.invoke(isActive, page, size);
+            
+            PaginatedResponse<FreeService> response = new PaginatedResponse<>(
+                    pagedResult.getContent(),
+                    pagedResult.getPage(),
+                    pagedResult.getSize(),
+                    pagedResult.getTotalElements(),
+                    pagedResult.getTotalPages()
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error getting all free services", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -88,7 +96,7 @@ public class FreeServiceController {
             );
             FreeService createdService = createFreeServiceUseCase.invoke(service);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdService);
-        } catch (IllegalArgumentException e) {
+        } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating free service: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {

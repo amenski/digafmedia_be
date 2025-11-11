@@ -1,35 +1,26 @@
 package io.github.amenski.digafmedia.usecase.withyou;
 
-import io.github.amenski.digafmedia.domain.Validator;
+import io.github.amenski.digafmedia.domain.exception.ValidationException;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.domain.repository.WithYouRepository;
+import io.github.amenski.digafmedia.domain.rules.WithYouValidator;
 
 public class CreateWithYouTestimonialUseCase {
 
     private final WithYouRepository withYouRepository;
-    private final Validator<WithYouTestimonial> withYouTestimonialValidator;
 
-    public CreateWithYouTestimonialUseCase(WithYouRepository withYouRepository, Validator<WithYouTestimonial> withYouTestimonialValidator) {
+    public CreateWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
         this.withYouRepository = withYouRepository;
-        this.withYouTestimonialValidator = withYouTestimonialValidator;
     }
 
     public WithYouTestimonial invoke(WithYouTestimonial testimonial) {
-        // New testimonials default to not approved
-        WithYouTestimonial toPersist = testimonial;
-        if (testimonial.isApproved() == null) {
-            toPersist = new WithYouTestimonial(
-                    testimonial.id(),
-                    testimonial.title(),
-                    testimonial.story(),
-                    testimonial.authorName(),
-                    testimonial.authorLocation(),
-                    false,
-                    testimonial.createdAt(),
-                    testimonial.modifiedAt()
-            );
+        WithYouTestimonial toPersist = WithYouTestimonial.withDefaults(testimonial);
+        
+        var validationResult = WithYouValidator.validate(toPersist);
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult);
         }
-        withYouTestimonialValidator.validate(toPersist);
+        
         return withYouRepository.save(toPersist);
     }
 }
