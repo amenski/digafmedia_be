@@ -15,11 +15,17 @@ public interface WithYouRepository {
 
     List<WithYouTestimonial> findByApprovedPaginated(boolean approved, int page, int size);
 
+    List<WithYouTestimonial> findApprovedPaginated(int page, int size);
+
     long count();
 
     long countByApproved(boolean approved);
 
+    long countApproved();
+
     Optional<WithYouTestimonial> findById(Long id);
+
+    boolean existsById(Long id);
 
     WithYouTestimonial save(WithYouTestimonial testimonial);
 

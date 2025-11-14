@@ -4,6 +4,7 @@ import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPosts;
 import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
+import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.irdata.CreateIrdataPostUseCase;
 import io.github.amenski.digafmedia.usecase.irdata.DeleteIrdataPostUseCase;
@@ -18,12 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("v1/irdata")
+@RequestMapping("/api/v1/irdata")
 public class IrdataController {
 
     private static final Logger log = LoggerFactory.getLogger(IrdataController.class);
@@ -91,9 +94,8 @@ public class IrdataController {
     public ResponseEntity<IrdataPost> getPostById(
             @Parameter(description = "Post ID") @PathVariable Long id) {
         try {
-            return getIrdataPostByIdUseCase.invoke(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            IrdataPost post = getIrdataPostByIdUseCase.invoke(id);
+            return ResponseEntity.ok(post);
         } catch (Exception e) {
             log.error("Error getting irdata post by id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -101,6 +103,8 @@ public class IrdataController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Create irdata post")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Post created successfully"),
@@ -137,6 +141,8 @@ public class IrdataController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Update irdata post")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Post updated successfully"),
@@ -160,6 +166,8 @@ public class IrdataController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     @Operation(summary = "Delete irdata post")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Post deleted successfully"),

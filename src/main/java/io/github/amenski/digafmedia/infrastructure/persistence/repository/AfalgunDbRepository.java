@@ -60,6 +60,11 @@ public class AfalgunDbRepository implements AfalgunRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return afalgunJpaRepository.existsById(id);
+    }
+
+    @Override
     public AfalgunPost save(AfalgunPost post) {
         AfalgunPostEntity entity = toEntity(post);
         if (entity.getId() == null) {

@@ -3,6 +3,7 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.freeservice.FreeService;
 import io.github.amenski.digafmedia.domain.freeservice.FreeServices;
+import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.freeservice.CreateFreeServiceUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.DeleteFreeServiceUseCase;
@@ -12,10 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/free-services")
+@RequestMapping("/api/v1/free-services")
 public class FreeServiceController {
 
     private static final Logger log = LoggerFactory.getLogger(FreeServiceController.class);
@@ -67,9 +70,12 @@ public class FreeServiceController {
     @GetMapping("/search")
     public ResponseEntity<FreeServices> searchServices(
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String location) {
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            FreeServices services = searchFreeServicesUseCase.invoke(category, location);
+            var pagedResult = searchFreeServicesUseCase.invoke(category, location, page, size);
+            FreeServices services = new FreeServices(pagedResult.getContent());
             return ResponseEntity.ok(services);
         } catch (Exception e) {
             log.error("Error searching free services", e);
@@ -78,6 +84,8 @@ public class FreeServiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @Transactional
     public ResponseEntity<FreeService> createService(@RequestBody FreeServiceRequest request) {
         try {
             FreeService service = new FreeService(
@@ -106,6 +114,8 @@ public class FreeServiceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
+    @Transactional
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         try {
             deleteFreeServiceUseCase.invoke(id);

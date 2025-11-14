@@ -45,6 +45,11 @@ public class TikomaDbRepository implements TikomaRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return tikomaJpaRepository.existsById(id);
+    }
+
+    @Override
     public TikomaAlert save(TikomaAlert alert) {
         TikomaAlertEntity entity = toEntity(alert);
         if (entity.getId() == null) {

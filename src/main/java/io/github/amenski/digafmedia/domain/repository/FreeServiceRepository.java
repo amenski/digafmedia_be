@@ -25,6 +25,8 @@ public interface FreeServiceRepository {
 
     Optional<FreeService> findById(Long id);
 
+    boolean existsById(Long id);
+
     FreeService save(FreeService service);
 
     void deleteById(Long id);

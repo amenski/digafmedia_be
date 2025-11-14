@@ -22,6 +22,8 @@ public interface IrdataRepository {
 
     Optional<IrdataPost> findById(Long id);
 
+    boolean existsById(Long id);
+
     IrdataPost save(IrdataPost post);
 
     void deleteById(Long id);

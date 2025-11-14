@@ -6,12 +6,15 @@ import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
 import io.github.amenski.digafmedia.usecase.GetAllCommentsUseCase;
 import io.github.amenski.digafmedia.usecase.GetCommentByIdUseCase;
 import io.github.amenski.digafmedia.usecase.afalgun.*;
+import io.github.amenski.digafmedia.usecase.auth.LoginUseCase;
+import io.github.amenski.digafmedia.usecase.auth.RegisterUserUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.*;
 import io.github.amenski.digafmedia.usecase.irdata.*;
 import io.github.amenski.digafmedia.usecase.tikoma.*;
 import io.github.amenski.digafmedia.usecase.withyou.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class UseCaseConfig {
@@ -145,5 +148,16 @@ public class UseCaseConfig {
   @Bean
   public DeleteWithYouTestimonialUseCase deleteWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
     return new DeleteWithYouTestimonialUseCase(withYouRepository);
+  }
+
+  // Authentication Use Cases
+  @Bean
+  public RegisterUserUseCase registerUserUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    return new RegisterUserUseCase(userRepository, passwordEncoder);
+  }
+
+  @Bean
+  public LoginUseCase loginUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    return new LoginUseCase(userRepository, passwordEncoder);
   }
 }

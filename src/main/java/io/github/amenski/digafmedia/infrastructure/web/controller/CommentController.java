@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,8 +36,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
+
 @RestController
-@RequestMapping("/v1/comments")
+@RequestMapping("/api/v1/comments")
 @Transactional(readOnly = true)
 public class CommentController {
 
@@ -95,9 +98,8 @@ public class CommentController {
     @GetMapping("/{id}")
     public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
         try {
-            return getCommentByIdUseCase.invoke(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            Comment comment = getCommentByIdUseCase.invoke(id);
+            return ResponseEntity.ok(comment);
         } catch (Exception e) {
             log.error("Error getting comment by id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -105,7 +107,11 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<Comment> createComment(@RequestBody CommentRequest request) {
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @Transactional
+    public ResponseEntity<Comment> createComment(
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             Comment comment = new Comment(
                     null,
@@ -126,6 +132,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
+    @Transactional
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         try {
             deleteCommentUseCase.invoke(id);

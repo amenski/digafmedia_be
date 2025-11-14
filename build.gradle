@@ -3,6 +3,20 @@ plugins {
     id 'org.springframework.boot' version '3.2.10'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.liquibase.gradle' version '2.2.0'
+    id "checkstyle"
+}
+
+checkstyle {
+    toolVersion = "10.17.0"
+}
+
+bootJar {
+    mainClass = "io.github.amenski.digafmedia.Application"
+    archiveFileName.set("${rootProject.name}.jar")
+    manifest {
+        attributes "Implementation-Version": archiveVersion
+        attributes "Implementation-Title": "DigafMedia Backend"
+    }
 }
 
 group = 'io.github.amenski'
@@ -18,22 +32,68 @@ repositories {
     mavenCentral()
 }
 
+configurations.configureEach {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
+    // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.apache.commons:commons-lang3:3.18.0'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // JWT Authentication
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    
+    // Database
     implementation 'org.liquibase:liquibase-core:4.29.2'
-    implementation 'joda-time:joda-time:2.13.0'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
-
     runtimeOnly 'com.mysql:mysql-connector-j'
+    
+    // Utilities
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'commons-io:commons-io:2.17.0'
+    implementation 'joda-time:joda-time:2.13.0'
+    
+    // API Documentation
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    
+    // Rate limiting
+    implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
+    
+    // HTTP Client
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    
+    // Resilience
+    implementation "io.github.resilience4j:resilience4j-retry:1.7.1"
+    implementation "io.github.resilience4j:resilience4j-spring-boot2:1.7.1"
+    
+    // Monitoring
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    
+    // Templating (for future use)
+    implementation 'org.freemarker:freemarker:2.3.32'
+    
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+test {
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
     useJUnitPlatform()
 }

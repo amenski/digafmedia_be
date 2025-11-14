@@ -69,6 +69,11 @@ public class FreeServiceDbRepository implements FreeServiceRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return freeServiceJpaRepository.existsById(id);
+    }
+
+    @Override
     public FreeService save(FreeService service) {
         FreeServiceEntity entity = toEntity(service);
         if (entity.getId() == null) {

@@ -1,10 +1,12 @@
 package io.github.amenski.digafmedia.infrastructure.web.security;
 
+import io.github.amenski.digafmedia.domain.user.User;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 public class UserPrincipal implements UserDetails {
     private final String username;
@@ -12,12 +14,16 @@ public class UserPrincipal implements UserDetails {
 
     public UserPrincipal(String username) {
         this.username = username;
-        this.authorities = Collections.emptyList();
+        this.authorities = new ArrayList<>();
     }
 
     public UserPrincipal(String username, Collection<? extends GrantedAuthority> authorities) {
         this.username = username;
         this.authorities = authorities;
+    }
+
+    public static UserPrincipal create(User user) {
+        return new UserPrincipal(user.getUsername());
     }
 
     @Override

@@ -4,7 +4,10 @@ import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonial;
 import io.github.amenski.digafmedia.domain.withyou.WithYouTestimonials;
 import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
+import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import io.github.amenski.digafmedia.usecase.withyou.ApproveWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.CreateWithYouTestimonialUseCase;
 import io.github.amenski.digafmedia.usecase.withyou.DeleteWithYouTestimonialUseCase;
@@ -17,10 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/with-you")
+@RequestMapping("/api/v1/with-you")
 public class WithYouController {
 
     private static final Logger log = LoggerFactory.getLogger(WithYouController.class);
@@ -75,6 +80,8 @@ public class WithYouController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Create with-you testimonial")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Testimonial created successfully"),
@@ -105,6 +112,8 @@ public class WithYouController {
     }
 
     @PutMapping("/{id}/approve")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Approve with-you testimonial")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Testimonial approved successfully"),
@@ -112,9 +121,10 @@ public class WithYouController {
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<WithYouTestimonial> approveTestimonial(
-            @Parameter(description = "Testimonial ID") @PathVariable Long id) {
+            @Parameter(description = "Testimonial ID") @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
-            WithYouTestimonial approved = approveWithYouTestimonialUseCase.invoke(id);
+            WithYouTestimonial approved = approveWithYouTestimonialUseCase.invoke(id, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.ok(approved);
         } catch (IllegalArgumentException e) {
             log.warn("Testimonial not found with id: {}", id);
@@ -126,6 +136,8 @@ public class WithYouController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     @Operation(summary = "Delete with-you testimonial")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Testimonial deleted successfully"),

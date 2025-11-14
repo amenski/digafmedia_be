@@ -43,6 +43,11 @@ public class CommentDbRepository implements CommentRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return commentJpaRepository.existsById(id);
+    }
+
+    @Override
     public Comment save(Comment comment) {
         CommentEntity entity = toEntity(comment);
         if (entity.getId() == null) {

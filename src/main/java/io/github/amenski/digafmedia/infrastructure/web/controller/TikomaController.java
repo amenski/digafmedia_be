@@ -4,6 +4,7 @@ import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaAlert;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaAlerts;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaUrgency;
+import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.tikoma.CreateTikomaAlertUseCase;
 import io.github.amenski.digafmedia.usecase.tikoma.DeleteTikomaAlertUseCase;
@@ -16,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("v1/tikoma")
+@RequestMapping("/api/v1/tikoma")
 public class TikomaController {
 
     private static final Logger log = LoggerFactory.getLogger(TikomaController.class);
@@ -72,6 +75,8 @@ public class TikomaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Create tikoma alert")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Alert created successfully"),
@@ -102,6 +107,8 @@ public class TikomaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
+    @Transactional
     @Operation(summary = "Delete tikoma alert")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Alert deleted successfully"),

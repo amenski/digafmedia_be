@@ -23,6 +23,8 @@ public interface AfalgunRepository {
 
     Optional<AfalgunPost> findById(Long id);
 
+    boolean existsById(Long id);
+
     AfalgunPost save(AfalgunPost post);
 
     void deleteById(Long id);

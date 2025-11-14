@@ -29,7 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/afalgun")
+@RequestMapping("/api/v1/afalgun")
 @Transactional(readOnly = true)
 public class AfalgunController {
 
@@ -67,7 +67,13 @@ public class AfalgunController {
             AfalgunSearchRequest searchRequest) {
         
         var command = afalgunWebMapper.from(searchRequest);
-        var searchResult = getAllAfalgunPostsUseCase.execute(command);
+        var searchResult = getAllAfalgunPostsUseCase.invoke(
+            command.status(),
+            command.query(),
+            command.location(),
+            command.page(),
+            command.size()
+        );
 
         var response = new PaginatedResponse<>(
             searchResult.getContent().stream()
@@ -92,7 +98,7 @@ public class AfalgunController {
     public ResponseEntity<AfalgunPostResponse> getAfalgunPostById(
             @Parameter(description = "Post ID") @PathVariable Long id) {
         
-        return getAfalgunPostByIdUseCase.execute(id)
+        return getAfalgunPostByIdUseCase.invoke(id)
                 .map(afalgunWebMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
@@ -100,7 +106,7 @@ public class AfalgunController {
 
     @PostMapping
     @Operation(summary = "Create afalgun post")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @Transactional
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Post created successfully"),
@@ -119,7 +125,7 @@ public class AfalgunController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update afalgun post status")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     @Transactional
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Post status updated successfully"),
@@ -133,7 +139,7 @@ public class AfalgunController {
             @Validated(ValidationGroups.Update.class) @RequestBody UpdateAfalgunPostRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         
-        var updatedAfalgun = updateAfalgunPostStatusUseCase.execute(
+        var updatedAfalgun = updateAfalgunPostStatusUseCase.invoke(
             id,
             request.getStatus(),
             new CurrentUserAdapter(userPrincipal)
@@ -143,7 +149,7 @@ public class AfalgunController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete afalgun post")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Post deleted successfully"),
@@ -155,7 +161,7 @@ public class AfalgunController {
             @Parameter(description = "Post ID") @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         
-        deleteAfalgunPostUseCase.execute(id, new CurrentUserAdapter(userPrincipal));
+        deleteAfalgunPostUseCase.invoke(id, new CurrentUserAdapter(userPrincipal));
         return ResponseEntity.noContent().build();
     }
 }

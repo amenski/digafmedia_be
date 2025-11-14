@@ -24,6 +24,8 @@ public interface TikomaRepository {
 
     Optional<TikomaAlert> findById(Long id);
 
+    boolean existsById(Long id);
+
     TikomaAlert save(TikomaAlert alert);
 
     void deleteById(Long id);

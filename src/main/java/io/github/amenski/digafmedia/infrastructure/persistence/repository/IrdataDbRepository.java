@@ -37,6 +37,11 @@ public class IrdataDbRepository implements IrdataRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return irdataJpaRepository.existsById(id);
+    }
+
+    @Override
     public IrdataPost save(IrdataPost post) {
         IrdataPostEntity entity = toEntity(post);
         if (entity.getId() == null) {
@@ -51,6 +56,27 @@ public class IrdataDbRepository implements IrdataRepository {
         irdataJpaRepository.deleteById(id);
     }
 
+    @Override
+    public List<IrdataPost> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return irdataJpaRepository.findAll(pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<IrdataPost> findByStatusPaginated(IrdataStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return irdataJpaRepository.findByStatus(status, pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public long count() {
+        return irdataJpaRepository.count();
+    }
+
+    @Override
+    public long countByStatus(IrdataStatus status) {
+        return irdataJpaRepository.countByStatus(status);
+    }
 
     private IrdataPost toDomain(IrdataPostEntity entity) {
         return new IrdataPost(

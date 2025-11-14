@@ -15,6 +15,8 @@ public interface CommentRepository {
 
     Optional<Comment> findById(Long id);
 
+    boolean existsById(Long id);
+
     Comment save(Comment comment);
 
     void deleteById(Long id);

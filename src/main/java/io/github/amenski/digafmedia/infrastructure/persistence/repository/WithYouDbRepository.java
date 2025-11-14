@@ -37,6 +37,11 @@ public class WithYouDbRepository implements WithYouRepository {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return withYouJpaRepository.existsById(id);
+    }
+
+    @Override
     public WithYouTestimonial save(WithYouTestimonial testimonial) {
         WithYouTestimonialEntity entity = toEntity(testimonial);
         if (entity.getId() == null) {
@@ -53,14 +58,20 @@ public class WithYouDbRepository implements WithYouRepository {
 
     @Override
     public List<WithYouTestimonial> findAllPaginated(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return withYouJpaRepository.findAll(pageable).stream().map(this::toDomain).toList();
     }
 
     @Override
     public List<WithYouTestimonial> findByApprovedPaginated(boolean approved, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return withYouJpaRepository.findByIsApproved(approved, pageable).stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<WithYouTestimonial> findApprovedPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return withYouJpaRepository.findByIsApproved(true, pageable).stream().map(this::toDomain).toList();
     }
 
     @Override
@@ -71,6 +82,11 @@ public class WithYouDbRepository implements WithYouRepository {
     @Override
     public long countByApproved(boolean approved) {
         return withYouJpaRepository.countByIsApproved(approved);
+    }
+
+    @Override
+    public long countApproved() {
+        return withYouJpaRepository.countByIsApproved(true);
     }
 
     private WithYouTestimonial toDomain(WithYouTestimonialEntity entity) {

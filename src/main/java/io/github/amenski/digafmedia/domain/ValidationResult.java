@@ -34,4 +34,10 @@ public class ValidationResult {
                     (field, fieldErrors) -> fieldErrors.forEach(error -> addError(field, error)));
         }
     }
+
+    public static ValidationResult error(String field, String message) {
+        ValidationResult result = new ValidationResult();
+        result.addError(field, message);
+        return result;
+    }
 }

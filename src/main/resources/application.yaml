@@ -7,16 +7,23 @@ server:
 spring:
   application:
     name: digafmedia
-  mvc.throw-exception-if-no-handler-found: true
-  web.resources.add-mappings: false
-  #==== connect to mysql ======#
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  sql:
+    init:
+      mode: never
   jpa:
     database: mysql
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
+        generate_statistics: false
     show-sql: false
     open-in-view: false
   datasource:
@@ -25,11 +32,51 @@ spring:
     password: password
     hikari:
       auto-commit: false
-
+      maximum-pool-size: ${DK_POOL_MAXIMUM_SIZE:20}
+      minimum-idle: ${DK_POOL_MINIMUM_IDLE_CONNECTIONS:10}
+      idle-timeout: ${DK_POOL_IDLE_TIMEOUT_MILLISECONDS:180000}
   liquibase:
     enabled: true
     change-log: classpath:db/master.xml
 
+# Logging configuration with structured format
+logging:
+  pattern:
+    console: "%d %-5p | [%-11.11thread] | %-32X{trace_id} | %c{0} | %msg%n"
+  level:
+    root: info
+    io.github.amenski.digafmedia: debug
+    org.hibernate: error
+    org.springframework.security: warn
+
+# Actuator endpoints for monitoring
+management:
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info, loggers
+      path-mapping:
+        health: status
+        prometheus: metrics
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 # CORS Configuration for Frontend
 cors:
   allowed-origins: http://localhost:3000,http://localhost:4173
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:mySuperSecretKeyForJWTTokenGenerationInDevelopmentModeOnly}
+    expiration-minutes: 60
+    refresh-expiration-days: 7
