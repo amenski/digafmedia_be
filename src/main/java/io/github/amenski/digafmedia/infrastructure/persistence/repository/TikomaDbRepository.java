@@ -95,7 +95,8 @@ public class TikomaDbRepository implements TikomaRepository {
                 entity.getContactPhone(),
                 entity.getUrgency(),
                 entity.getCreatedAt(),
-                entity.getModifiedAt()
+                entity.getModifiedAt(),
+                entity.getCreatedBy()
         );
     }
 

@@ -5,6 +5,8 @@ import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPosts;
 import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
 import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
+import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.irdata.CreateIrdataPostUseCase;
 import io.github.amenski.digafmedia.usecase.irdata.DeleteIrdataPostUseCase;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -111,7 +114,9 @@ public class IrdataController {
         @ApiResponse(responseCode = "400", description = "Validation error"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<IrdataPost> createPost(@RequestBody IrdataPostRequest request) {
+    public ResponseEntity<IrdataPost> createPost(
+            @RequestBody IrdataPostRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             IrdataPost post = new IrdataPost(
                     null,
@@ -127,9 +132,10 @@ public class IrdataController {
                     request.contactEmail(),
                     request.status(),
                     null,
-                    null
+                    null,
+                    userPrincipal.getId()
             );
-            IrdataPost createdPost = createIrdataPostUseCase.invoke(post);
+            IrdataPost createdPost = createIrdataPostUseCase.invoke(post, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
         } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating irdata post: {}", e.getMessage());

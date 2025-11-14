@@ -11,8 +11,8 @@ public class CurrentUserAdapter implements CurrentUser {
   }
 
   @Override
-  public String id() {
-    return userPrincipal.getUsername();
+  public Long id() {
+    return userPrincipal.getId();
   }
 
   @Override

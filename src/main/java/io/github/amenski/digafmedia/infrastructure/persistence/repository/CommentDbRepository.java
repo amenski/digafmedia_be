@@ -68,7 +68,8 @@ public class CommentDbRepository implements CommentRepository {
                 entity.getName(),
                 entity.getEmail(),
                 entity.getContent(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getCreatedBy()
         );
     }
 

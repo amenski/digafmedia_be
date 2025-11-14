@@ -1,5 +1,6 @@
 package io.github.amenski.digafmedia.usecase.irdata;
 
+import io.github.amenski.digafmedia.domain.CurrentUser;
 import io.github.amenski.digafmedia.domain.exception.ValidationException;
 import io.github.amenski.digafmedia.domain.irdata.IrdataPost;
 import io.github.amenski.digafmedia.domain.repository.IrdataRepository;
@@ -13,13 +14,13 @@ public class CreateIrdataPostUseCase {
         this.irdataRepository = irdataRepository;
     }
 
-    public IrdataPost invoke(IrdataPost post) {
+    public IrdataPost invoke(IrdataPost post, CurrentUser currentUser) {
         var validationResult = IrdataValidator.validate(post);
         if (validationResult.hasErrors()) {
             throw new ValidationException(validationResult);
         }
 
-        IrdataPost toPersist = IrdataPost.withDefaults(post);
+        IrdataPost toPersist = IrdataPost.withDefaults(post, currentUser.id());
         return irdataRepository.save(toPersist);
     }
 }

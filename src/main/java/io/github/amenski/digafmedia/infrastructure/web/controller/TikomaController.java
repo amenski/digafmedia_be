@@ -5,6 +5,8 @@ import io.github.amenski.digafmedia.domain.tikoma.TikomaAlert;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaAlerts;
 import io.github.amenski.digafmedia.domain.tikoma.TikomaUrgency;
 import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
+import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.tikoma.CreateTikomaAlertUseCase;
 import io.github.amenski.digafmedia.usecase.tikoma.DeleteTikomaAlertUseCase;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,7 +86,9 @@ public class TikomaController {
         @ApiResponse(responseCode = "400", description = "Validation error"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<TikomaAlert> createAlert(@RequestBody TikomaAlertRequest request) {
+    public ResponseEntity<TikomaAlert> createAlert(
+            @RequestBody TikomaAlertRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             TikomaAlert alert = new TikomaAlert(
                     null,
@@ -93,9 +98,10 @@ public class TikomaController {
                     request.contactPhone(),
                     request.urgency(),
                     null,
-                    null
+                    null,
+                    userPrincipal.getId()
             );
-            TikomaAlert createdAlert = createTikomaAlertUseCase.invoke(alert);
+            TikomaAlert createdAlert = createTikomaAlertUseCase.invoke(alert, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAlert);
         } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating tikoma alert: {}", e.getMessage());

@@ -11,7 +11,7 @@ public interface CurrentUser {
      *
      * @return The user ID
      */
-    String id();
+    Long id();
 
     /**
      * Gets the user's username or login identifier for auditing.

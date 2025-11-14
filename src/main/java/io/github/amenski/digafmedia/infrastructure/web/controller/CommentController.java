@@ -9,6 +9,7 @@ import io.github.amenski.digafmedia.infrastructure.web.mapper.CommentWebMapper;
 import io.github.amenski.digafmedia.infrastructure.web.model.CommentResponse;
 import io.github.amenski.digafmedia.infrastructure.web.model.CreateCommentRequest;
 import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.CreateCommentUseCase;
 import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
@@ -118,9 +119,10 @@ public class CommentController {
                     request.name(),
                     request.email(),
                     request.content(),
-                    null
+                    null,
+                    userPrincipal.getId()
             );
-            Comment createdComment = createCommentUseCase.invoke(comment);
+            Comment createdComment = createCommentUseCase.invoke(comment, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
         } catch (DomainValidationException e) {
             log.warn("Validation error creating comment: {}", e.getMessage());

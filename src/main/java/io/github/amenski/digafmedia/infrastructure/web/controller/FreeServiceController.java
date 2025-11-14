@@ -4,6 +4,8 @@ import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.freeservice.FreeService;
 import io.github.amenski.digafmedia.domain.freeservice.FreeServices;
 import io.github.amenski.digafmedia.infrastructure.web.model.PaginatedResponse;
+import io.github.amenski.digafmedia.infrastructure.web.security.CurrentUserAdapter;
+import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import io.github.amenski.digafmedia.infrastructure.web.util.PaginationUtils;
 import io.github.amenski.digafmedia.usecase.freeservice.CreateFreeServiceUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.DeleteFreeServiceUseCase;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,7 +89,9 @@ public class FreeServiceController {
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     @Transactional
-    public ResponseEntity<FreeService> createService(@RequestBody FreeServiceRequest request) {
+    public ResponseEntity<FreeService> createService(
+            @RequestBody FreeServiceRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             FreeService service = new FreeService(
                     null,
@@ -100,9 +105,10 @@ public class FreeServiceController {
                     request.hoursOfOperation(),
                     request.isActive(),
                     null,
-                    null
+                    null,
+                    userPrincipal.getId()
             );
-            FreeService createdService = createFreeServiceUseCase.invoke(service);
+            FreeService createdService = createFreeServiceUseCase.invoke(service, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.status(HttpStatus.CREATED).body(createdService);
         } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating free service: {}", e.getMessage());

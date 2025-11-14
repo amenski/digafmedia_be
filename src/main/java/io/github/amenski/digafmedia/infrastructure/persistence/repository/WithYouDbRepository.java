@@ -65,13 +65,17 @@ public class WithYouDbRepository implements WithYouRepository {
     @Override
     public List<WithYouTestimonial> findByApprovedPaginated(boolean approved, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return withYouJpaRepository.findByIsApproved(approved, pageable).stream().map(this::toDomain).toList();
+        return withYouJpaRepository.findByIsApproved(approved, pageable).stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     @Override
     public List<WithYouTestimonial> findApprovedPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return withYouJpaRepository.findByIsApproved(true, pageable).stream().map(this::toDomain).toList();
+        return withYouJpaRepository.findByIsApproved(true, pageable).stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     @Override
@@ -98,8 +102,8 @@ public class WithYouDbRepository implements WithYouRepository {
                 entity.getAuthorLocation(),
                 entity.getIsApproved(),
                 entity.getCreatedAt(),
-                entity.getModifiedAt()
-        );
+                entity.getModifiedAt(),
+                entity.getCreatedBy());
     }
 
     private WithYouTestimonialEntity toEntity(WithYouTestimonial testimonial) {

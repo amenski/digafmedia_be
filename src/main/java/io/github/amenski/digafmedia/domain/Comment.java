@@ -7,13 +7,14 @@ public record Comment(
     String name,
     String email,
     String content,
-    OffsetDateTime createdAt
+    OffsetDateTime createdAt,
+    Long createdBy
 ) {
     /**
      * Factory method to create a Comment with default createdAt if not provided.
      * This encapsulates the business rule that new comments should have a creation timestamp.
      */
-    public static Comment withDefaults(Comment comment) {
+    public static Comment withDefaults(Comment comment, Long createdBy) {
         if (comment.createdAt() != null) {
             return comment;
         }
@@ -22,7 +23,8 @@ public record Comment(
                 comment.name(),
                 comment.email(),
                 comment.content(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                createdBy
         );
     }
 }

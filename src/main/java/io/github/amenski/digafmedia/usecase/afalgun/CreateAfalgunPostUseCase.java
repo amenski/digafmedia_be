@@ -21,7 +21,7 @@ public class CreateAfalgunPostUseCase {
             throw new ValidationException(validationResult);
         }
         
-        AfalgunPost post = AfalgunPost.fromCommand(command);
+        AfalgunPost post = AfalgunPost.fromCommand(command, currentUser.id());
         return afalgunRepository.save(post);
     }
 }

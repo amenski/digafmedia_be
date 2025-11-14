@@ -101,7 +101,8 @@ public class FreeServiceDbRepository implements FreeServiceRepository {
                 entity.getHoursOfOperation(),
                 entity.getIsActive(),
                 entity.getCreatedAt(),
-                entity.getModifiedAt()
+                entity.getModifiedAt(),
+                entity.getCreatedBy()
         );
     }
 

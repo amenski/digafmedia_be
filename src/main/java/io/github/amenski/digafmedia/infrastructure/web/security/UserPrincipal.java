@@ -9,21 +9,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class UserPrincipal implements UserDetails {
+    private final Long id;
     private final String username;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(String username) {
+    public UserPrincipal(Long id, String username) {
+        this.id = id;
         this.username = username;
         this.authorities = new ArrayList<>();
     }
 
-    public UserPrincipal(String username, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String username, Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
         this.username = username;
         this.authorities = authorities;
     }
 
     public static UserPrincipal create(User user) {
-        return new UserPrincipal(user.getUsername());
+        return new UserPrincipal(user.getId(), user.getUsername());
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @Override

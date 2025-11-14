@@ -88,7 +88,9 @@ public class WithYouController {
         @ApiResponse(responseCode = "400", description = "Validation error"),
         @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<WithYouTestimonial> createTestimonial(@RequestBody WithYouTestimonialRequest request) {
+    public ResponseEntity<WithYouTestimonial> createTestimonial(
+            @RequestBody WithYouTestimonialRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
             WithYouTestimonial testimonial = new WithYouTestimonial(
                     null,
@@ -98,9 +100,10 @@ public class WithYouController {
                     request.authorLocation(),
                     request.isApproved(),
                     null,
-                    null
+                    null,
+                    userPrincipal.getId()
             );
-            WithYouTestimonial createdTestimonial = createWithYouTestimonialUseCase.invoke(testimonial);
+            WithYouTestimonial createdTestimonial = createWithYouTestimonialUseCase.invoke(testimonial, new CurrentUserAdapter(userPrincipal));
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTestimonial);
         } catch (DomainValidationException | IllegalArgumentException e) {
             log.warn("Validation error creating with-you testimonial: {}", e.getMessage());

@@ -17,13 +17,14 @@ public record IrdataPost(
     String contactEmail,
     IrdataStatus status,
     OffsetDateTime createdAt,
-    OffsetDateTime modifiedAt
+    OffsetDateTime modifiedAt,
+    Long createdBy
 ) {
     /**
      * Factory method to create an IrdataPost with defaults if missing.
      * Encapsulates business rules: new posts default to ACTIVE status and ZERO current amount.
      */
-    public static IrdataPost withDefaults(IrdataPost post) {
+    public static IrdataPost withDefaults(IrdataPost post, Long createdBy) {
         if (post.status() != null && post.currentAmount() != null) {
             return post;
         }
@@ -41,7 +42,8 @@ public record IrdataPost(
                 post.contactEmail(),
                 post.status() != null ? post.status() : IrdataStatus.ACTIVE,
                 post.createdAt(),
-                post.modifiedAt()
+                post.modifiedAt(),
+                createdBy
         );
     }
 
@@ -64,7 +66,8 @@ public record IrdataPost(
                 this.contactEmail(),
                 newStatus != null ? newStatus : this.status(),
                 this.createdAt(),
-                this.modifiedAt()
+                this.modifiedAt(),
+                this.createdBy()
         );
     }
 }

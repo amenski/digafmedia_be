@@ -14,13 +14,14 @@ public record FreeService(
     String hoursOfOperation,
     Boolean isActive,
     OffsetDateTime createdAt,
-    OffsetDateTime modifiedAt
+    OffsetDateTime modifiedAt,
+    Long createdBy
 ) {
     /**
      * Factory method to create a FreeService with default isActive if not provided.
      * This encapsulates the business rule that new services default to active.
      */
-    public static FreeService withDefaults(FreeService service) {
+    public static FreeService withDefaults(FreeService service, Long createdBy) {
         if (service.isActive() != null) {
             return service;
         }
@@ -36,7 +37,8 @@ public record FreeService(
                 service.hoursOfOperation(),
                 true,
                 service.createdAt(),
-                service.modifiedAt()
+                service.modifiedAt(),
+                createdBy
         );
     }
 }

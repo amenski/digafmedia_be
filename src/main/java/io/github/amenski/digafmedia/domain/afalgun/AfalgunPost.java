@@ -14,13 +14,14 @@ public record AfalgunPost(
     String description,
     AfalgunStatus status,
     OffsetDateTime createdAt,
-    OffsetDateTime modifiedAt
+    OffsetDateTime modifiedAt,
+    Long createdBy
 ) {
     /**
      * Factory method to create a new AfalgunPost from a command.
      * Encapsulates the business rule that new posts should have a creation timestamp.
      */
-    public static AfalgunPost fromCommand(CreateAfalgunPostCommand command) {
+    public static AfalgunPost fromCommand(CreateAfalgunPostCommand command, Long createdBy) {
         Objects.requireNonNull(command, "Command cannot be null");
         
         return new AfalgunPost(
@@ -34,7 +35,8 @@ public record AfalgunPost(
                 command.description(),
                 command.status(),
                 OffsetDateTime.now(),
-                null
+                null,
+                createdBy
         );
     }
 
@@ -60,7 +62,8 @@ public record AfalgunPost(
                 this.description(),
                 newStatus,
                 this.createdAt(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                this.createdBy()
         );
     }
 

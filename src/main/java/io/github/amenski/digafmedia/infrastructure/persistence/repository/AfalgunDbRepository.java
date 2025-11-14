@@ -91,7 +91,8 @@ public class AfalgunDbRepository implements AfalgunRepository {
                 entity.getDescription(),
                 entity.getStatus(),
                 entity.getCreatedAt(),
-                entity.getModifiedAt()
+                entity.getModifiedAt(),
+                entity.getCreatedBy()
         );
     }
 

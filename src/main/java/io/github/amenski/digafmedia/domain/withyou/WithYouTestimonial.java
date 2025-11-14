@@ -10,13 +10,10 @@ public record WithYouTestimonial(
     String authorLocation,
     Boolean isApproved,
     OffsetDateTime createdAt,
-    OffsetDateTime modifiedAt
+    OffsetDateTime modifiedAt,
+    Long createdBy
 ) {
-    /**
-     * Factory method to create a WithYouTestimonial with default isApproved if not provided.
-     * This encapsulates the business rule that new testimonials default to not approved.
-     */
-    public static WithYouTestimonial withDefaults(WithYouTestimonial testimonial) {
+    public static WithYouTestimonial withDefaults(WithYouTestimonial testimonial, Long createdBy) {
         if (testimonial.isApproved() != null) {
             return testimonial;
         }
@@ -28,14 +25,11 @@ public record WithYouTestimonial(
                 testimonial.authorLocation(),
                 false,
                 testimonial.createdAt(),
-                testimonial.modifiedAt()
+                testimonial.modifiedAt(),
+                createdBy
         );
     }
 
-    /**
-     * Domain method to approve a testimonial.
-     * Encapsulates the business rule for approval state change.
-     */
     public WithYouTestimonial approve() {
         return new WithYouTestimonial(
                 this.id(),
@@ -45,7 +39,8 @@ public record WithYouTestimonial(
                 this.authorLocation(),
                 true,
                 this.createdAt(),
-                this.modifiedAt()
+                this.modifiedAt(),
+                this.createdBy()
         );
     }
 }

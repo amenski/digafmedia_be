@@ -93,7 +93,8 @@ public class IrdataDbRepository implements IrdataRepository {
                 entity.getContactEmail(),
                 entity.getStatus(),
                 entity.getCreatedAt(),
-                entity.getModifiedAt()
+                entity.getModifiedAt(),
+                entity.getCreatedBy()
         );
     }
 

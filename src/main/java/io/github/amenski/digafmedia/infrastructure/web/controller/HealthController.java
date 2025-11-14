@@ -47,34 +47,4 @@ public class HealthController {
             ResponseEntity.ok(healthStatus) : 
             ResponseEntity.status(503).body(healthStatus);
     }
-
-    @GetMapping("/liveness")
-    public ResponseEntity<Map<String, Object>> liveness() {
-        AvailabilityState livenessState = applicationAvailability.getLivenessState();
-        boolean isLive = livenessState == LivenessState.CORRECT;
-
-        Map<String, Object> livenessStatus = Map.of(
-            "status", isLive ? "UP" : "DOWN",
-            "details", Map.of("state", livenessState)
-        );
-
-        return isLive ? 
-            ResponseEntity.ok(livenessStatus) : 
-            ResponseEntity.status(503).body(livenessStatus);
-    }
-
-    @GetMapping("/readiness")
-    public ResponseEntity<Map<String, Object>> readiness() {
-        AvailabilityState readinessState = applicationAvailability.getReadinessState();
-        boolean isReady = readinessState == ReadinessState.ACCEPTING_TRAFFIC;
-
-        Map<String, Object> readinessStatus = Map.of(
-            "status", isReady ? "UP" : "DOWN",
-            "details", Map.of("state", readinessState)
-        );
-
-        return isReady ? 
-            ResponseEntity.ok(readinessStatus) : 
-            ResponseEntity.status(503).body(readinessStatus);
-    }
 }

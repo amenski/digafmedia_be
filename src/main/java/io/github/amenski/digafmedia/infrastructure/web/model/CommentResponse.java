@@ -12,12 +12,15 @@ public class CommentResponse {
     private String email;
     private String content;
     private OffsetDateTime createdAt;
+    private Long createdBy;
 
     public CommentResponse() {
     }
 
     public static CommentResponse fromComment(Comment comment) {
-        if (comment == null) return null;
+        if (comment == null) {
+            return null;
+        }
         
         CommentResponse response = new CommentResponse();
         response.setId(comment.id());
@@ -25,6 +28,7 @@ public class CommentResponse {
         response.setEmail(comment.email());
         response.setContent(comment.content());
         response.setCreatedAt(comment.createdAt());
+        response.setCreatedBy(comment.createdBy());
         return response;
     }
 
@@ -67,5 +71,13 @@ public class CommentResponse {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

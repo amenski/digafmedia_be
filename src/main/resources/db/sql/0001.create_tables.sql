@@ -1,60 +1,142 @@
--- liquibase formatted sql
+--liquibase formatted sql
 
--- changeset aman:create-tables
-CREATE TABLE IF NOT EXISTS product
+--changeset amenski:create_users_table
+CREATE TABLE users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('USER', 'MODERATOR', 'ADMIN') NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--changeset amenski:create_afalgun_post_table
+CREATE TABLE afalgun_post (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    missing_person_name VARCHAR(255) NOT NULL,
+    age INT,
+    last_seen_location VARCHAR(500),
+    contact_name VARCHAR(255),
+    contact_phone VARCHAR(20),
+    contact_email VARCHAR(255),
+    description TEXT,
+    status ENUM('ACTIVE', 'FOUND', 'CLOSED') DEFAULT 'ACTIVE',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+--changeset amenski:create_irdata_post_table
+CREATE TABLE irdata_post (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    goal_amount DECIMAL(15,2),
+    current_amount DECIMAL(15,2) DEFAULT 0,
+    bank_name VARCHAR(255),
+    account_number VARCHAR(100),
+    account_holder VARCHAR(255),
+    contact_name VARCHAR(255),
+    contact_phone VARCHAR(20),
+    contact_email VARCHAR(255),
+    status ENUM('ACTIVE', 'FUNDED', 'CLOSED') DEFAULT 'ACTIVE',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+--changeset amenski:create_tikoma_alert_table
+CREATE TABLE tikoma_alert (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    contact_name VARCHAR(255),
+    contact_phone VARCHAR(20),
+    urgency ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+--changeset amenski:create_free_service_table
+CREATE TABLE free_service (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    service_name VARCHAR(255) NOT NULL,
+    provider_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    location VARCHAR(500),
+    contact_phone VARCHAR(20),
+    contact_email VARCHAR(255),
+    category VARCHAR(100),
+    hours_of_operation VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+--changeset amenski:create_with_you_testimonial_table
+CREATE TABLE with_you_testimonial (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    story TEXT NOT NULL,
+    author_name VARCHAR(255),
+    author_location VARCHAR(255),
+    is_approved BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+--changeset amenski:create_post_image_table
+CREATE TABLE post_image (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_type ENUM('AFALGUN', 'IRDATA', 'TIKOMA', 'FREE_SERVICE', 'WITH_YOU') NOT NULL,
+    post_id BIGINT NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    alt_text VARCHAR(255),
+    display_order INT DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    modified_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by BIGINT,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    INDEX idx_post_type_id (post_type, post_id)
+);
+
+-- changeset aman:create-comments-table
+CREATE TABLE IF NOT EXISTS comment
 (
     id          BIGINT AUTO_INCREMENT,
-    route_name  VARCHAR(255) NOT NULL,
     name        VARCHAR(255) NOT NULL,
+    email       VARCHAR(255) NOT NULL,
+    content     TEXT         NOT NULL,
     created_at  DATETIME     NULL,
     modified_at DATETIME     NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS item
-(
-    id           BIGINT AUTO_INCREMENT,
-    title        VARCHAR(255) NOT NULL,
-    contact      VARCHAR(255) NOT NULL,
-    description  TEXT         NOT NULL,
-    published_on DATETIME     NOT NULL,
-    product_id   BIGINT       NOT NULL,
-    created_at   DATETIME     NULL,
-    modified_at  DATETIME     NULL,
+    created_by  BIGINT,
     PRIMARY KEY (id),
-    FOREIGN KEY (product_id) REFERENCES product (id)
-);
+    FOREIGN KEY (created_by) REFERENCES users(id)
+    );
 
-CREATE TABLE IF NOT EXISTS image
-(
-    id            BIGINT AUTO_INCREMENT,
-    file_path     VARCHAR(255) NOT NULL,
-    alt_text      VARCHAR(255) NULL,
-    display_order INT DEFAULT 0,
-    product_id    BIGINT       NULL,
-    item_id       BIGINT       NULL,
-    created_at    DATETIME     NULL,
-    modified_at   DATETIME     NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE,
-    CHECK ((product_id IS NULL AND item_id IS NOT NULL) OR
-           (product_id IS NOT NULL AND item_id IS NULL))
-);
+--changeset amenski:create_indexes_for_ngo_tables
+CREATE INDEX idx_afalgun_status ON afalgun_post(status);
+CREATE INDEX idx_afalgun_created_at ON afalgun_post(created_at DESC);
 
--- Indexes for better performance
-CREATE INDEX idx_image_product ON image (product_id);
-CREATE INDEX idx_image_item ON image (item_id);
+CREATE INDEX idx_irdata_status ON irdata_post(status);
+CREATE INDEX idx_irdata_created_at ON irdata_post(created_at DESC);
 
+CREATE INDEX idx_tikoma_urgency ON tikoma_alert(urgency);
+CREATE INDEX idx_tikoma_created_at ON tikoma_alert(created_at DESC);
 
--- changeset aman:add-sample-data
-INSERT INTO product (id, route_name, name, created_at, modified_at)
-VALUES (1, 'afalgun', 'afalgun', NULL, NULL);
-INSERT INTO item (id, title, contact, description, published_on, product_id, created_at, modified_at)
-VALUES (1, 'test', 'test', 'test', '2025-04-12 10:31:38', 1, NULL, NULL);
-INSERT INTO image (id, file_path, alt_text, display_order, product_id, item_id, created_at, modified_at)
-VALUES (1, 'https://edu.google.com/coursebuilder/courses/pswg/1.2/assets/notes/Lesson4.1/images/image05.png?mmfb=1441065600', 'test', 0, 1, Null, NULL, NULL);
-INSERT INTO image (id, file_path, alt_text, display_order, product_id, item_id, created_at, modified_at)
-VALUES (2, 'https://static.semrush.com/blog/uploads/media/5b/f9/5bf9fd188f1ed082797a82c91df2345b/c779ec5bf5399f124185a68fb314c3cd/original.jpeg', 'test', 0, NULL, 1, NULL, NULL);
-INSERT INTO image (id, file_path, alt_text, display_order, product_id, item_id, created_at, modified_at)
-VALUES (3, 'https://www.mekina.net/_next/image?url=https%3A%2F%2Fmekina.s3.eu-west-1.amazonaws.com%2Fcars%2Fprivate%2Ff8fdc442-543d-476b-b264-b06c1c01eb3f%2Ffc7aac20-03b8-479f-a781-a52fa10465e5%2F1000016675_424f40f2a9.jpg&w=3840&q=75', 'test', 0, NULL, 1, NULL, NULL);
+CREATE INDEX idx_free_service_active ON free_service(is_active);
+CREATE INDEX idx_free_service_category ON free_service(category);
+CREATE INDEX idx_free_service_location ON free_service(location(255));
+
+CREATE INDEX idx_with_you_approved ON with_you_testimonial(is_approved);
+CREATE INDEX idx_with_you_created_at ON with_you_testimonial(created_at DESC);

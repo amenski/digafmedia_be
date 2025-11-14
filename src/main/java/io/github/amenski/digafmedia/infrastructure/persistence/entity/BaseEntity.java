@@ -20,6 +20,9 @@ public class BaseEntity {
     @Column(name = "modified_at")
     private OffsetDateTime modifiedAt;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     public Long getId() {
         return id;
     }
@@ -42,5 +45,13 @@ public class BaseEntity {
 
     public void setModifiedAt(OffsetDateTime modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }
