@@ -1,9 +1,15 @@
 package io.github.amenski.digafmedia.infrastructure.web.controller;
 
+import io.github.amenski.digafmedia.domain.DomainValidationException;
+import io.github.amenski.digafmedia.domain.ValidationResult;
+import io.github.amenski.digafmedia.domain.repository.UserRepository;
 import io.github.amenski.digafmedia.domain.user.LoginCommand;
 import io.github.amenski.digafmedia.domain.user.RegisterUserCommand;
+import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.infrastructure.security.JwtTokenService;
 import io.github.amenski.digafmedia.infrastructure.web.model.auth.AuthResponse;
 import io.github.amenski.digafmedia.infrastructure.web.model.auth.LoginRequest;
+import io.github.amenski.digafmedia.infrastructure.web.model.auth.RefreshTokenRequest;
 import io.github.amenski.digafmedia.infrastructure.web.model.auth.RegisterRequest;
 import io.github.amenski.digafmedia.infrastructure.web.model.auth.UserResponse;
 import io.github.amenski.digafmedia.usecase.auth.LoginUseCase;
@@ -33,10 +39,15 @@ public class AuthController {
     
     private final RegisterUserUseCase registerUserUseCase;
     private final LoginUseCase loginUseCase;
+    private final JwtTokenService jwtTokenService;
+    private final UserRepository userRepository;
     
-    public AuthController(RegisterUserUseCase registerUserUseCase, LoginUseCase loginUseCase) {
+    public AuthController(RegisterUserUseCase registerUserUseCase, LoginUseCase loginUseCase,
+                         JwtTokenService jwtTokenService, UserRepository userRepository) {
         this.registerUserUseCase = registerUserUseCase;
         this.loginUseCase = loginUseCase;
+        this.jwtTokenService = jwtTokenService;
+        this.userRepository = userRepository;
     }
     
     @PostMapping("/register")
@@ -66,11 +77,10 @@ public class AuthController {
                 user.isActive()
         );
         
-        // TODO: Generate JWT tokens
         var authResponse = new AuthResponse(
-                null, // accessToken - TODO: generate token
-                null, // refreshToken - TODO: generate token
-                3600L, // expiresIn
+                jwtTokenService.generateAccessToken(user),
+                jwtTokenService.generateRefreshToken(user),
+                3600L,
                 userResponse
         );
         
@@ -105,15 +115,69 @@ public class AuthController {
                 user.isActive()
         );
         
-        // TODO: Generate JWT tokens
+        // Generate JWT tokens
         var authResponse = new AuthResponse(
-                null, // accessToken - TODO: generate token
-                null, // refreshToken - TODO: generate token
+                jwtTokenService.generateAccessToken(user),
+                jwtTokenService.generateRefreshToken(user),
                 3600L, // expiresIn
                 userResponse
         );
         
         logger.info("User logged in successfully: {}", request.getUsername());
+        return ResponseEntity.ok(authResponse);
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh JWT tokens", description = "Refreshes expired access token using a valid refresh token")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Tokens refreshed successfully",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid refresh token"),
+        @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<AuthResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest request) {
+        logger.info("Refreshing tokens with refresh token");
+        
+        // Validate refresh token
+        if (!jwtTokenService.validateToken(request.getRefreshToken())) {
+            throw new DomainValidationException("Invalid refresh token",
+                ValidationResult.error("refreshToken", "Invalid or expired refresh token").getErrors());
+        }
+        
+        // Extract username from refresh token
+        String username = jwtTokenService.getUsernameFromToken(request.getRefreshToken());
+        
+        // Find user by username
+        var userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new DomainValidationException("User not found", ValidationResult.error("user", "User not found").getErrors());
+        }
+        
+        User user = userOptional.get();
+        
+        // Check if user is active
+        if (!user.isActive()) {
+            throw new DomainValidationException("Account deactivated", ValidationResult.error("account", "Account is deactivated").getErrors());
+        }
+        
+        var userResponse = new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.isActive()
+        );
+        
+        // Generate new tokens
+        var authResponse = new AuthResponse(
+                jwtTokenService.generateAccessToken(user),
+                jwtTokenService.generateRefreshToken(user),
+                3600L, // expiresIn
+                userResponse
+        );
+        
+        logger.info("Tokens refreshed successfully for user: {}", username);
         return ResponseEntity.ok(authResponse);
     }
 }
