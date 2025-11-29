@@ -72,7 +72,7 @@ management:
 
 # CORS Configuration for Frontend
 cors:
-  allowed-origins: http://localhost:3000,http://localhost:4173
+  allowed-origins: *
 
 # JWT Configuration
 app:
@@ -80,3 +80,15 @@ app:
     secret: ${JWT_SECRET:mySuperSecretKeyForJWTTokenGenerationInDevelopmentModeOnly}
     expiration-minutes: 60
     refresh-expiration-days: 7
+
+# Cookie-based Authentication Configuration
+auth:
+  cookies:
+    enabled: true
+    access-name: sid
+    refresh-name: sid_refresh
+    secure: ${COOKIE_SECURE:false}  # Set to true in production
+    same-site: ${COOKIE_SAMESITE:Lax}   # Lax|Strict|None
+    domain: ${COOKIE_DOMAIN:}           # e.g. .example.com
+  access-ttl-seconds: ${ACCESS_TTL:1800}    # 30m
+  refresh-ttl-seconds: ${REFRESH_TTL:2592000} # 30d

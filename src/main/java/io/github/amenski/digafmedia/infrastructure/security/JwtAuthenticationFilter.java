@@ -5,6 +5,7 @@ import io.github.amenski.digafmedia.domain.user.User;
 import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -26,14 +27,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
     private final UserRepository userRepository;
+    private final CookieProperties cookieProperties;
 
-    public JwtAuthenticationFilter(JwtTokenService jwtTokenService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtTokenService jwtTokenService, UserRepository userRepository, CookieProperties cookieProperties) {
         this.jwtTokenService = jwtTokenService;
         this.userRepository = userRepository;
+        this.cookieProperties = cookieProperties;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
@@ -62,9 +65,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
+        // First try to get JWT from cookie
+        String jwtFromCookie = getJwtFromCookie(request);
+        if (StringUtils.hasText(jwtFromCookie)) {
+            return jwtFromCookie;
+        }
+        
+        // Fallback to Authorization header
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(BEARER_PREFIX.length());
+        }
+        
+        return null;
+    }
+    
+    private String getJwtFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null && cookieProperties.isEnabled()) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookieProperties.getAccessName().equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
