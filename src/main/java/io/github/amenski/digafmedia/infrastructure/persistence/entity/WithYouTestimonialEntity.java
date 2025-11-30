@@ -21,6 +21,9 @@ public class WithYouTestimonialEntity extends BaseEntity {
     @Column(name = "is_approved", nullable = false)
     private Boolean isApproved = false;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getTitle() {
         return title;
@@ -60,5 +63,13 @@ public class WithYouTestimonialEntity extends BaseEntity {
 
     public void setIsApproved(Boolean isApproved) {
         this.isApproved = isApproved;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

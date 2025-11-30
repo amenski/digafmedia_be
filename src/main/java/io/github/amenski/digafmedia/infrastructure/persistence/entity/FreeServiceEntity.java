@@ -33,6 +33,9 @@ public class FreeServiceEntity extends BaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getServiceName() {
         return serviceName;
@@ -104,5 +107,13 @@ public class FreeServiceEntity extends BaseEntity {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

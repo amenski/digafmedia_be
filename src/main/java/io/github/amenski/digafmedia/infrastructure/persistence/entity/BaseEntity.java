@@ -17,11 +17,12 @@ public class BaseEntity {
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+
     @Column(name = "modified_at")
     private OffsetDateTime modifiedAt;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
 
     public Long getId() {
         return id;
@@ -47,11 +48,11 @@ public class BaseEntity {
         this.modifiedAt = modifiedAt;
     }
 
-    public Long getCreatedBy() {
-        return createdBy;
+    public OffsetDateTime getDeletedAt() {
+        return deletedAt;
     }
 
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
+    public void setDeletedAt(OffsetDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

@@ -43,6 +43,9 @@ public class IrdataPostEntity extends BaseEntity {
     @Column(name = "status", nullable = false)
     private IrdataStatus status = IrdataStatus.ACTIVE;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getTitle() {
         return title;
@@ -130,5 +133,13 @@ public class IrdataPostEntity extends BaseEntity {
 
     public void setStatus(IrdataStatus status) {
         this.status = status;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

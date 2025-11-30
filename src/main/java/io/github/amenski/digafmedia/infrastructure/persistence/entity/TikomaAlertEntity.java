@@ -23,6 +23,9 @@ public class TikomaAlertEntity extends BaseEntity {
     @Column(name = "urgency", nullable = false)
     private TikomaUrgency urgency = TikomaUrgency.MEDIUM;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getTitle() {
         return title;
@@ -62,5 +65,13 @@ public class TikomaAlertEntity extends BaseEntity {
 
     public void setUrgency(TikomaUrgency urgency) {
         this.urgency = urgency;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

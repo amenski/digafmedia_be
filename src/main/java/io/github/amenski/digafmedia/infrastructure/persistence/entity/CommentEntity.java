@@ -15,6 +15,9 @@ public class CommentEntity extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getName() {
         return name;
@@ -38,5 +41,13 @@ public class CommentEntity extends BaseEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

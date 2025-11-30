@@ -32,6 +32,9 @@ public class AfalgunPostEntity extends BaseEntity {
     @Column(name = "status", nullable = false)
     private AfalgunStatus status = AfalgunStatus.ACTIVE;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public String getMissingPersonName() {
         return missingPersonName;
@@ -95,5 +98,13 @@ public class AfalgunPostEntity extends BaseEntity {
 
     public void setStatus(AfalgunStatus status) {
         this.status = status;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

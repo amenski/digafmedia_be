@@ -23,6 +23,9 @@ public class PostImageEntity extends BaseEntity {
     @Column(name = "display_order")
     private Integer displayOrder = 0;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     // Getters and setters
     public PostType getPostType() {
         return postType;
@@ -62,5 +65,13 @@ public class PostImageEntity extends BaseEntity {
 
     public void setDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }
