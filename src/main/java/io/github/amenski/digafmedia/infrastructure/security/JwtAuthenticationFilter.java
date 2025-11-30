@@ -1,7 +1,7 @@
 package io.github.amenski.digafmedia.infrastructure.security;
 
-import io.github.amenski.digafmedia.domain.repository.UserRepository;
-import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.domain.repository.AccountRepository;
+import io.github.amenski.digafmedia.domain.user.Account;
 import io.github.amenski.digafmedia.infrastructure.web.security.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,12 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtTokenService jwtTokenService;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final CookieProperties cookieProperties;
 
-    public JwtAuthenticationFilter(JwtTokenService jwtTokenService, UserRepository userRepository, CookieProperties cookieProperties) {
+    public JwtAuthenticationFilter(JwtTokenService jwtTokenService, AccountRepository accountRepository, CookieProperties cookieProperties) {
         this.jwtTokenService = jwtTokenService;
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
         this.cookieProperties = cookieProperties;
     }
 
@@ -45,10 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && jwtTokenService.validateToken(jwt)) {
                 String username = jwtTokenService.getUsernameFromToken(jwt);
                 
-                Optional<User> userOptional = userRepository.findByUsername(username);
-                if (userOptional.isPresent() && userOptional.get().isActive()) {
-                    User user = userOptional.get();
-                    UserPrincipal userPrincipal = UserPrincipal.create(user);
+                Optional<Account> accountOptional = accountRepository.findByUsername(username);
+                if (accountOptional.isPresent() && accountOptional.get().isActive()) {
+                    Account account = accountOptional.get();
+                    UserPrincipal userPrincipal = UserPrincipal.create(account);
                     
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

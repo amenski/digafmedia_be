@@ -39,12 +39,8 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
     private String getCorrelationIdFromHeader(HttpServletRequest request) {
         String correlationId = request.getHeader(CORRELATION_ID_HEADER);
         if (correlationId == null || correlationId.trim().isEmpty()) {
-            correlationId = generateCorrelationId();
+            correlationId = UUID.randomUUID().toString();
         }
         return correlationId;
-    }
-
-    private String generateCorrelationId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 }

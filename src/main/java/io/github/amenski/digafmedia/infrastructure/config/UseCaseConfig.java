@@ -152,12 +152,12 @@ public class UseCaseConfig {
 
   // Authentication Use Cases
   @Bean
-  public RegisterUserUseCase registerUserUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    return new RegisterUserUseCase(userRepository, passwordEncoder);
+  public RegisterUserUseCase registerUserUseCase(AccountRepository accountRepository, UserProfileRepository userProfileRepository, PasswordEncoder passwordEncoder) {
+    return new RegisterUserUseCase(accountRepository, userProfileRepository, passwordEncoder);
   }
 
   @Bean
-  public LoginUseCase loginUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    return new LoginUseCase(userRepository, passwordEncoder);
+  public LoginUseCase loginUseCase(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+    return new LoginUseCase(accountRepository, passwordEncoder);
   }
 }

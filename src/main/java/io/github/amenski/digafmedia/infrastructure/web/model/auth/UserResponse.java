@@ -21,6 +21,18 @@ public class UserResponse {
     @Schema(description = "Whether the user is active", example = "true")
     private boolean active;
 
+    @Schema(description = "First name", example = "John")
+    private String firstName;
+
+    @Schema(description = "Last name", example = "Doe")
+    private String lastName;
+
+    @Schema(description = "Phone number", example = "+1234567890")
+    private String phoneNumber;
+
+    @Schema(description = "Location", example = "New York, USA")
+    private String location;
+
     // Default constructor for JSON deserialization
     public UserResponse() {}
 
@@ -30,6 +42,19 @@ public class UserResponse {
         this.email = email;
         this.role = role;
         this.active = active;
+    }
+
+    public UserResponse(Long id, String username, String email, UserRole role, boolean active,
+                       String firstName, String lastName, String phoneNumber, String location) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.active = active;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.location = location;
     }
 
     // Getters and setters
@@ -47,4 +72,16 @@ public class UserResponse {
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 }

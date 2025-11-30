@@ -1,7 +1,8 @@
 package io.github.amenski.digafmedia.infrastructure.security;
 
-import io.github.amenski.digafmedia.domain.repository.UserRepository;
+import io.github.amenski.digafmedia.domain.repository.AccountRepository;
 
+import io.github.amenski.digafmedia.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,15 +30,15 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenService jwtTokenService;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final CookieProperties cookieProperties;
 
     @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:4173}")
     private String allowedOrigins;
 
-    public SecurityConfig(JwtTokenService jwtTokenService, UserRepository userRepository, CookieProperties cookieProperties) {
+    public SecurityConfig(JwtTokenService jwtTokenService, AccountRepository accountRepository, CookieProperties cookieProperties) {
         this.jwtTokenService = jwtTokenService;
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
         this.cookieProperties = cookieProperties;
     }
 
@@ -74,7 +75,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenService, userRepository, cookieProperties);
+        return new JwtAuthenticationFilter(jwtTokenService, accountRepository, cookieProperties);
     }
 
     @Bean

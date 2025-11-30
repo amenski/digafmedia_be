@@ -1,9 +1,11 @@
 package io.github.amenski.digafmedia.usecase.auth;
 
 import io.github.amenski.digafmedia.domain.DomainValidationException;
-import io.github.amenski.digafmedia.domain.repository.UserRepository;
+import io.github.amenski.digafmedia.domain.repository.AccountRepository;
+import io.github.amenski.digafmedia.domain.repository.UserProfileRepository;
+import io.github.amenski.digafmedia.domain.user.Account;
 import io.github.amenski.digafmedia.domain.user.RegisterUserCommand;
-import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.domain.user.UserProfile;
 import io.github.amenski.digafmedia.domain.ValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +20,19 @@ public class RegisterUserUseCase {
     
     private static final Logger logger = LoggerFactory.getLogger(RegisterUserUseCase.class);
     
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final UserProfileRepository userProfileRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public RegisterUserUseCase(AccountRepository accountRepository,
+                              UserProfileRepository userProfileRepository,
+                              PasswordEncoder passwordEncoder) {
+        this.accountRepository = accountRepository;
+        this.userProfileRepository = userProfileRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User execute(RegisterUserCommand command) {
+    public Account execute(RegisterUserCommand command) {
         String correlationId = MDC.get("correlationId");
         logger.debug("Executing register user use case - correlationId: {}, username: {}", correlationId, command.getUsername());
         
@@ -38,14 +44,14 @@ public class RegisterUserUseCase {
         }
 
         // Check for existing username
-        if (userRepository.existsByUsername(command.getUsername())) {
+        if (accountRepository.existsByUsername(command.getUsername())) {
             logger.warn("Username already exists - correlationId: {}, username: {}", correlationId, command.getUsername());
             throw new DomainValidationException("Username already exists",
                 ValidationResult.error("username", "Username is already taken").getErrors());
         }
 
         // Check for existing email
-        if (userRepository.existsByEmail(command.getEmail())) {
+        if (accountRepository.existsByEmail(command.getEmail())) {
             logger.warn("Email already exists - correlationId: {}, email: {}", correlationId, command.getEmail());
             throw new DomainValidationException("Email already exists",
                 ValidationResult.error("email", "Email is already registered").getErrors());
@@ -54,20 +60,26 @@ public class RegisterUserUseCase {
         // Hash password
         String passwordHash = passwordEncoder.encode(command.getPassword());
 
-        // Create user
-        User user = User.create(
-            command.getUsername(),
-            command.getEmail(),
-            passwordHash,
-            command.getRole()
-        );
+        // Create account using builder
+        Account account = Account.builder()
+            .username(command.getUsername())
+            .email(command.getEmail())
+            .passwordHash(passwordHash)
+            .role(command.getRole())
+            .build();
 
-        // Save user
-        User savedUser = userRepository.save(user);
+        // Save account
+        Account savedAccount = accountRepository.save(account);
         
-        logger.info("User registered successfully - correlationId: {}, username: {}, userId: {}",
-            correlationId, savedUser.getUsername(), savedUser.getId());
+        // Create user profile using builder
+        UserProfile userProfile = UserProfile.builder()
+            .accountId(savedAccount.getId())
+            .build();
+        userProfileRepository.save(userProfile);
         
-        return savedUser;
+        logger.info("User registered successfully - correlationId: {}, username: {}, accountId: {}",
+            correlationId, savedAccount.getUsername(), savedAccount.getId());
+        
+        return savedAccount;
     }
 }

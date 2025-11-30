@@ -1,6 +1,6 @@
 package io.github.amenski.digafmedia.infrastructure.security;
 
-import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.domain.user.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -35,25 +35,25 @@ public class JwtTokenService {
         this.refreshExpirationDays = refreshExpirationDays;
     }
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(Account account) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("role", user.getRole().name());
-        claims.put("username", user.getUsername());
-        claims.put("email", user.getEmail());
+        claims.put("userId", account.getId());
+        claims.put("role", account.getRole().name());
+        claims.put("username", account.getUsername());
+        claims.put("email", account.getEmail());
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getUsername())
+                .setSubject(account.getUsername())
                 .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(Date.from(Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES)))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(Account account) {
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(account.getUsername())
                 .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(Date.from(Instant.now().plus(refreshExpirationDays, ChronoUnit.DAYS)))
                 .signWith(secretKey, SignatureAlgorithm.HS256)

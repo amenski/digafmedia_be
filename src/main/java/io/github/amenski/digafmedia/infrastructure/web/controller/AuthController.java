@@ -2,10 +2,12 @@ package io.github.amenski.digafmedia.infrastructure.web.controller;
 
 import io.github.amenski.digafmedia.domain.DomainValidationException;
 import io.github.amenski.digafmedia.domain.ValidationResult;
-import io.github.amenski.digafmedia.domain.repository.UserRepository;
+import io.github.amenski.digafmedia.domain.repository.AccountRepository;
+import io.github.amenski.digafmedia.domain.repository.UserProfileRepository;
+import io.github.amenski.digafmedia.domain.user.Account;
 import io.github.amenski.digafmedia.domain.user.LoginCommand;
 import io.github.amenski.digafmedia.domain.user.RegisterUserCommand;
-import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.domain.user.UserProfile;
 import io.github.amenski.digafmedia.infrastructure.security.CookieUtils;
 import io.github.amenski.digafmedia.infrastructure.security.JwtTokenService;
 import io.github.amenski.digafmedia.infrastructure.web.model.auth.AuthResponse;
@@ -45,16 +47,18 @@ public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
     private final LoginUseCase loginUseCase;
     private final JwtTokenService jwtTokenService;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final UserProfileRepository userProfileRepository;
     private final CookieUtils cookieUtils;
     
     public AuthController(RegisterUserUseCase registerUserUseCase, LoginUseCase loginUseCase,
-                         JwtTokenService jwtTokenService, UserRepository userRepository,
-                         CookieUtils cookieUtils) {
+                         JwtTokenService jwtTokenService, AccountRepository accountRepository,
+                         UserProfileRepository userProfileRepository, CookieUtils cookieUtils) {
         this.registerUserUseCase = registerUserUseCase;
         this.loginUseCase = loginUseCase;
         this.jwtTokenService = jwtTokenService;
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
+        this.userProfileRepository = userProfileRepository;
         this.cookieUtils = cookieUtils;
     }
     
@@ -76,19 +80,26 @@ public class AuthController {
                 request.getPassword()
         );
         
-        var user = registerUserUseCase.execute(command);
+        var account = registerUserUseCase.execute(command);
         
+        // Fetch user profile to include in response
+        var userProfile = userProfileRepository.findByAccountId(account.getId()).orElse(null);
+
         var userResponse = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.isActive()
+                account.getId(),
+                account.getUsername(),
+                account.getEmail(),
+                account.getRole(),
+                account.isActive(),
+                userProfile != null ? userProfile.getFirstName() : null,
+                userProfile != null ? userProfile.getLastName() : null,
+                userProfile != null ? userProfile.getPhoneNumber() : null,
+                userProfile != null ? userProfile.getLocation() : null
         );
-        
+
         var authResponse = new AuthResponse(
-                jwtTokenService.generateAccessToken(user),
-                jwtTokenService.generateRefreshToken(user),
+                jwtTokenService.generateAccessToken(account),
+                jwtTokenService.generateRefreshToken(account),
                 3600L,
                 userResponse
         );
@@ -115,19 +126,26 @@ public class AuthController {
                 request.getPassword()
         );
         
-        var user = loginUseCase.execute(command);
+        var account = loginUseCase.execute(command);
+        
+        // Fetch user profile to include in response
+        var userProfile = userProfileRepository.findByAccountId(account.getId()).orElse(null);
         
         var userResponse = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.isActive()
+                account.getId(),
+                account.getUsername(),
+                account.getEmail(),
+                account.getRole(),
+                account.isActive(),
+                userProfile != null ? userProfile.getFirstName() : null,
+                userProfile != null ? userProfile.getLastName() : null,
+                userProfile != null ? userProfile.getPhoneNumber() : null,
+                userProfile != null ? userProfile.getLocation() : null
         );
-        
+
         // Generate JWT tokens
-        String accessToken = jwtTokenService.generateAccessToken(user);
-        String refreshToken = jwtTokenService.generateRefreshToken(user);
+        String accessToken = jwtTokenService.generateAccessToken(account);
+        String refreshToken = jwtTokenService.generateRefreshToken(account);
         
         var authResponse = new AuthResponse(
                 accessToken,
@@ -183,32 +201,39 @@ public class AuthController {
         // Extract username from refresh token
         String username = jwtTokenService.getUsernameFromToken(refreshToken);
         
-        // Find user by username
-        var userOptional = userRepository.findByUsername(username);
-        if (userOptional.isEmpty()) {
-            logger.warn("User not found during token refresh - correlationId: {}, username: {}", correlationId, username);
+        // Find account by username
+        var accountOptional = accountRepository.findByUsername(username);
+        if (accountOptional.isEmpty()) {
+            logger.warn("Account not found during token refresh - correlationId: {}, username: {}", correlationId, username);
             throw new DomainValidationException("User not found", ValidationResult.error("user", "User not found").getErrors());
         }
         
-        User user = userOptional.get();
+        Account account = accountOptional.get();
         
-        // Check if user is active
-        if (!user.isActive()) {
+        // Check if account is active
+        if (!account.isActive()) {
             logger.warn("Account deactivated during token refresh - correlationId: {}, username: {}", correlationId, username);
             throw new DomainValidationException("Account deactivated", ValidationResult.error("account", "Account is deactivated").getErrors());
         }
         
-        var userResponse = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.isActive()
-        );
+        // Fetch user profile to include in response
+        var userProfile = userProfileRepository.findByAccountId(account.getId()).orElse(null);
         
+        var userResponse = new UserResponse(
+                account.getId(),
+                account.getUsername(),
+                account.getEmail(),
+                account.getRole(),
+                account.isActive(),
+                userProfile != null ? userProfile.getFirstName() : null,
+                userProfile != null ? userProfile.getLastName() : null,
+                userProfile != null ? userProfile.getPhoneNumber() : null,
+                userProfile != null ? userProfile.getLocation() : null
+        );
+
         // Generate new tokens
-        String newAccessToken = jwtTokenService.generateAccessToken(user);
-        String newRefreshToken = jwtTokenService.generateRefreshToken(user);
+        String newAccessToken = jwtTokenService.generateAccessToken(account);
+        String newRefreshToken = jwtTokenService.generateRefreshToken(account);
         
         var authResponse = new AuthResponse(
                 newAccessToken,

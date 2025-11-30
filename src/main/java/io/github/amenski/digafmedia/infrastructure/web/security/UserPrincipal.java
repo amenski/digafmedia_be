@@ -1,6 +1,6 @@
 package io.github.amenski.digafmedia.infrastructure.web.security;
 
-import io.github.amenski.digafmedia.domain.user.User;
+import io.github.amenski.digafmedia.domain.user.Account;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +25,8 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
     }
 
-    public static UserPrincipal create(User user) {
-        return new UserPrincipal(user.getId(), user.getUsername());
+    public static UserPrincipal create(Account account) {
+        return new UserPrincipal(account.getId(), account.getUsername());
     }
 
     public Long getId() {
