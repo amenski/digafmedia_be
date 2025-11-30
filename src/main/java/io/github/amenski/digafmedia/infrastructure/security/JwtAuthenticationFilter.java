@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -54,11 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     
-                    logger.debug("Authenticated user: {}", username);
+                    String correlationId = MDC.get("correlationId");
+                    logger.debug("Authenticated user - correlationId: {}, username: {}", correlationId, username);
                 }
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            String correlationId = MDC.get("correlationId");
+            logger.error("Could not set user authentication in security context - correlationId: {}", correlationId, ex);
         }
 
         filterChain.doFilter(request, response);

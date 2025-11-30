@@ -26,3 +26,8 @@ spring:
   liquibase:
     enabled: true
     change-log: db/master.xml
+
+
+logging:
+  level:
+    org.springframework: debug

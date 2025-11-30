@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -66,7 +67,8 @@ public class AuthController {
         @ApiResponse(responseCode = "409", description = "Username or email already exists")
     })
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        logger.info("Registering new user with username: {}", request.getUsername());
+        String correlationId = MDC.get("correlationId");
+        logger.info("Registering new user - correlationId: {}, username: {}", correlationId, request.getUsername());
         
         var command = RegisterUserCommand.createUser(
                 request.getUsername(),
@@ -91,7 +93,7 @@ public class AuthController {
                 userResponse
         );
         
-        logger.info("User registered successfully: {}", request.getUsername());
+        logger.info("User registered successfully - correlationId: {}, username: {}", correlationId, request.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
     
@@ -105,7 +107,8 @@ public class AuthController {
         @ApiResponse(responseCode = "403", description = "Account is inactive")
     })
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        logger.info("Login attempt for username: {}", request.getUsername());
+        String correlationId = MDC.get("correlationId");
+        logger.info("Login attempt - correlationId: {}, username: {}", correlationId, request.getUsername());
         
         var command = LoginCommand.create(
                 request.getUsername(),
@@ -137,7 +140,7 @@ public class AuthController {
         ResponseCookie accessCookie = cookieUtils.buildAccessTokenCookie(accessToken, 1800); // 30 minutes
         ResponseCookie refreshCookie = cookieUtils.buildRefreshTokenCookie(refreshToken, 2592000); // 30 days
         
-        logger.info("User logged in successfully: {}", request.getUsername());
+        logger.info("User logged in successfully - correlationId: {}, username: {}", correlationId, request.getUsername());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -154,7 +157,8 @@ public class AuthController {
         @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<AuthResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest request, HttpServletRequest httpRequest) {
-        logger.info("Refreshing tokens");
+        String correlationId = MDC.get("correlationId");
+        logger.info("Refreshing tokens - correlationId: {}", correlationId);
         
         String refreshToken;
         if (request.getRefreshToken() != null && !request.getRefreshToken().isBlank()) {
@@ -171,6 +175,7 @@ public class AuthController {
         
         // Validate refresh token
         if (!jwtTokenService.validateToken(refreshToken)) {
+            logger.warn("Invalid refresh token - correlationId: {}", correlationId);
             throw new DomainValidationException("Invalid refresh token",
                 ValidationResult.error("refreshToken", "Invalid or expired refresh token").getErrors());
         }
@@ -181,6 +186,7 @@ public class AuthController {
         // Find user by username
         var userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
+            logger.warn("User not found during token refresh - correlationId: {}, username: {}", correlationId, username);
             throw new DomainValidationException("User not found", ValidationResult.error("user", "User not found").getErrors());
         }
         
@@ -188,6 +194,7 @@ public class AuthController {
         
         // Check if user is active
         if (!user.isActive()) {
+            logger.warn("Account deactivated during token refresh - correlationId: {}, username: {}", correlationId, username);
             throw new DomainValidationException("Account deactivated", ValidationResult.error("account", "Account is deactivated").getErrors());
         }
         
@@ -214,7 +221,7 @@ public class AuthController {
         ResponseCookie accessCookie = cookieUtils.buildAccessTokenCookie(newAccessToken, 1800); // 30 minutes
         ResponseCookie refreshCookie = cookieUtils.buildRefreshTokenCookie(newRefreshToken, 2592000); // 30 days
         
-        logger.info("Tokens refreshed successfully for user: {}", username);
+        logger.info("Tokens refreshed successfully - correlationId: {}, username: {}", correlationId, username);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -227,7 +234,8 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<Void> logout() {
-        logger.info("Logging out user");
+        String correlationId = MDC.get("correlationId");
+        logger.info("Logging out user - correlationId: {}", correlationId);
         
         // Clear authentication cookies
         ResponseCookie[] clearedCookies = cookieUtils.clearAuthCookies();
