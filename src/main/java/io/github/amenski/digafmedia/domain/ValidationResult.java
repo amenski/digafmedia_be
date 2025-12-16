@@ -40,4 +40,73 @@ public class ValidationResult {
         result.addError(field, message);
         return result;
     }
+
+    // Validation Chain Pattern Methods
+
+    public static ValidationResult validate(Object command) {
+        return new ValidationResult();
+    }
+
+    public ValidationResult notNull(String field, String message) {
+        addError(field, message);
+        return this;
+    }
+
+    public ValidationResult notEmpty(String field, String value, String message) {
+        if (value == null || value.trim().isEmpty()) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult length(String field, String value, int minLength, int maxLength, String message) {
+        if (value != null && (value.length() < minLength || value.length() > maxLength)) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult minLength(String field, String value, int minLength, String message) {
+        if (value != null && value.length() < minLength) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult maxLength(String field, String value, int maxLength, String message) {
+        if (value != null && value.length() > maxLength) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult email(String field, String value, String message) {
+        if (value != null && !value.trim().isEmpty() && !isValidEmail(value)) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult phone(String field, String value, String message) {
+        if (value != null && !value.trim().isEmpty() && !isValidPhoneNumber(value)) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    public ValidationResult custom(String field, boolean condition, String message) {
+        if (condition) {
+            addError(field, message);
+        }
+        return this;
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.contains("@") && email.contains(".");
+    }
+
+    private boolean isValidPhoneNumber(String phone) {
+        // Basic phone validation - can be enhanced
+        return phone.matches("\\+?[0-9]{9,15}");
+    }
 }

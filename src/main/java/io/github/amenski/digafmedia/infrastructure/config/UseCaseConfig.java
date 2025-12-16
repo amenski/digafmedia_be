@@ -1,11 +1,20 @@
 package io.github.amenski.digafmedia.infrastructure.config;
 
 import io.github.amenski.digafmedia.domain.repository.*;
+import io.github.amenski.digafmedia.domain.repository.CommunityAlertRepository;
+import io.github.amenski.digafmedia.domain.repository.CommunityResourceRepository;
+import io.github.amenski.digafmedia.domain.repository.ImpactStoryRepository;
 import io.github.amenski.digafmedia.usecase.CreateCommentUseCase;
 import io.github.amenski.digafmedia.usecase.DeleteCommentUseCase;
 import io.github.amenski.digafmedia.usecase.GetAllCommentsUseCase;
 import io.github.amenski.digafmedia.usecase.GetCommentByIdUseCase;
-import io.github.amenski.digafmedia.usecase.afalgun.*;
+import io.github.amenski.digafmedia.usecase.fundraising.CreateFundraisingCampaignUseCase;
+import io.github.amenski.digafmedia.usecase.fundraising.DeleteFundraisingCampaignUseCase;
+import io.github.amenski.digafmedia.usecase.fundraising.GetAllFundraisingCampaignsUseCase;
+import io.github.amenski.digafmedia.usecase.fundraising.GetFundraisingCampaignByIdUseCase;
+import io.github.amenski.digafmedia.usecase.fundraising.UpdateFundraisingCampaignAmountUseCase;
+import io.github.amenski.digafmedia.usecase.fundraising.UpdateFundraisingCampaignStatusUseCase;
+import io.github.amenski.digafmedia.usecase.missingperson.*;
 import io.github.amenski.digafmedia.usecase.auth.LoginUseCase;
 import io.github.amenski.digafmedia.usecase.auth.RegisterUserUseCase;
 import io.github.amenski.digafmedia.usecase.freeservice.*;
@@ -40,114 +49,134 @@ public class UseCaseConfig {
     return new DeleteCommentUseCase(commentRepository);
   }
 
-  // Afalgun Use Cases
+  // Missing Person Reports Use Cases
   @Bean
-  public CreateAfalgunPostUseCase createAfalgunPostUseCase(AfalgunRepository afalgunRepository) {
-    return new CreateAfalgunPostUseCase(afalgunRepository);
+  public CreateMissingPersonReportUseCase createMissingPersonReportUseCase(MissingPersonReportRepository missingPersonReportRepository) {
+    return new CreateMissingPersonReportUseCase(missingPersonReportRepository);
   }
 
   @Bean
-  public GetAllAfalgunPostsUseCase getAllAfalgunPostsUseCase(AfalgunRepository afalgunRepository) {
-    return new GetAllAfalgunPostsUseCase(afalgunRepository);
+  public GetAllMissingPersonReportsUseCase getAllMissingPersonReportsUseCase(MissingPersonReportRepository missingPersonReportRepository) {
+    return new GetAllMissingPersonReportsUseCase(missingPersonReportRepository);
   }
 
   @Bean
-  public GetAfalgunPostByIdUseCase getAfalgunPostByIdUseCase(AfalgunRepository afalgunRepository) {
-    return new GetAfalgunPostByIdUseCase(afalgunRepository);
+  public GetMissingPersonReportByIdUseCase getMissingPersonReportByIdUseCase(MissingPersonReportRepository missingPersonReportRepository) {
+    return new GetMissingPersonReportByIdUseCase(missingPersonReportRepository);
   }
 
   @Bean
-  public UpdateAfalgunPostStatusUseCase updateAfalgunPostStatusUseCase(AfalgunRepository afalgunRepository) {
-    return new UpdateAfalgunPostStatusUseCase(afalgunRepository);
+  public UpdateMissingPersonReportStatusUseCase updateMissingPersonReportStatusUseCase(MissingPersonReportRepository missingPersonReportRepository) {
+    return new UpdateMissingPersonReportStatusUseCase(missingPersonReportRepository);
   }
 
   @Bean
-  public DeleteAfalgunPostUseCase deleteAfalgunPostUseCase(AfalgunRepository afalgunRepository) {
-    return new DeleteAfalgunPostUseCase(afalgunRepository);
+  public DeleteMissingPersonReportUseCase deleteMissingPersonReportUseCase(MissingPersonReportRepository missingPersonReportRepository) {
+    return new DeleteMissingPersonReportUseCase(missingPersonReportRepository);
   }
 
-  // Irdata Use Cases
+  // Fundraising Campaign Use Cases
   @Bean
-  public CreateIrdataPostUseCase createIrdataPostUseCase(IrdataRepository irdataRepository) {
-    return new CreateIrdataPostUseCase(irdataRepository);
-  }
-
-  @Bean
-  public GetAllIrdataPostsUseCase getAllIrdataPostsUseCase(IrdataRepository irdataRepository) {
-    return new GetAllIrdataPostsUseCase(irdataRepository);
+  public CreateFundraisingCampaignUseCase createFundraisingCampaignUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new CreateFundraisingCampaignUseCase(fundraisingCampaignRepository);
   }
 
   @Bean
-  public GetIrdataPostByIdUseCase getIrdataPostByIdUseCase(IrdataRepository irdataRepository) {
-    return new GetIrdataPostByIdUseCase(irdataRepository);
+  public GetAllFundraisingCampaignsUseCase getAllFundraisingCampaignsUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new GetAllFundraisingCampaignsUseCase(fundraisingCampaignRepository);
   }
 
   @Bean
-  public UpdateIrdataPostUseCase updateIrdataPostUseCase(IrdataRepository irdataRepository) {
-    return new UpdateIrdataPostUseCase(irdataRepository);
+  public GetFundraisingCampaignByIdUseCase getFundraisingCampaignByIdUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new GetFundraisingCampaignByIdUseCase(fundraisingCampaignRepository);
   }
 
   @Bean
-  public DeleteIrdataPostUseCase deleteIrdataPostUseCase(IrdataRepository irdataRepository) {
-    return new DeleteIrdataPostUseCase(irdataRepository);
-  }
-
-  // Tikoma Use Cases
-  @Bean
-  public CreateTikomaAlertUseCase createTikomaAlertUseCase(TikomaRepository tikomaRepository) {
-    return new CreateTikomaAlertUseCase(tikomaRepository);
+  public UpdateFundraisingCampaignAmountUseCase updateFundraisingCampaignAmountUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new UpdateFundraisingCampaignAmountUseCase(fundraisingCampaignRepository);
   }
 
   @Bean
-  public GetAllTikomaAlertsUseCase getAllTikomaAlertsUseCase(TikomaRepository tikomaRepository) {
-    return new GetAllTikomaAlertsUseCase(tikomaRepository);
+  public UpdateFundraisingCampaignStatusUseCase updateFundraisingCampaignStatusUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new UpdateFundraisingCampaignStatusUseCase(fundraisingCampaignRepository);
   }
 
   @Bean
-  public DeleteTikomaAlertUseCase deleteTikomaAlertUseCase(TikomaRepository tikomaRepository) {
-    return new DeleteTikomaAlertUseCase(tikomaRepository);
+  public DeleteFundraisingCampaignUseCase deleteFundraisingCampaignUseCase(FundraisingCampaignRepository fundraisingCampaignRepository) {
+    return new DeleteFundraisingCampaignUseCase(fundraisingCampaignRepository);
   }
 
-  // Free Service Use Cases
+  // Community Alert Use Cases
   @Bean
-  public CreateFreeServiceUseCase createFreeServiceUseCase(FreeServiceRepository freeServiceRepository) {
-    return new CreateFreeServiceUseCase(freeServiceRepository);
-  }
-
-  @Bean
-  public GetAllFreeServicesUseCase getAllFreeServicesUseCase(FreeServiceRepository freeServiceRepository) {
-    return new GetAllFreeServicesUseCase(freeServiceRepository);
+  public CreateCommunityAlertUseCase createCommunityAlertUseCase(CommunityAlertRepository communityAlertRepository) {
+    return new CreateCommunityAlertUseCase(communityAlertRepository);
   }
 
   @Bean
-  public SearchFreeServicesUseCase searchFreeServicesUseCase(FreeServiceRepository freeServiceRepository) {
-    return new SearchFreeServicesUseCase(freeServiceRepository);
+  public GetAllCommunityAlertsUseCase getAllCommunityAlertsUseCase(CommunityAlertRepository communityAlertRepository) {
+    return new GetAllCommunityAlertsUseCase(communityAlertRepository);
   }
 
   @Bean
-  public DeleteFreeServiceUseCase deleteFreeServiceUseCase(FreeServiceRepository freeServiceRepository) {
-    return new DeleteFreeServiceUseCase(freeServiceRepository);
-  }
-
-  // With You Use Cases
-  @Bean
-  public CreateWithYouTestimonialUseCase createWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
-    return new CreateWithYouTestimonialUseCase(withYouRepository);
+  public GetCommunityAlertByIdUseCase getCommunityAlertByIdUseCase(CommunityAlertRepository communityAlertRepository) {
+    return new GetCommunityAlertByIdUseCase(communityAlertRepository);
   }
 
   @Bean
-  public GetAllWithYouTestimonialsUseCase getAllWithYouTestimonialsUseCase(WithYouRepository withYouRepository) {
-    return new GetAllWithYouTestimonialsUseCase(withYouRepository);
+  public UpdateCommunityAlertUrgencyUseCase updateCommunityAlertUrgencyUseCase(CommunityAlertRepository communityAlertRepository) {
+    return new UpdateCommunityAlertUrgencyUseCase(communityAlertRepository);
   }
 
   @Bean
-  public ApproveWithYouTestimonialUseCase approveWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
-    return new ApproveWithYouTestimonialUseCase(withYouRepository);
+  public DeleteCommunityAlertUseCase deleteCommunityAlertUseCase(CommunityAlertRepository communityAlertRepository) {
+    return new DeleteCommunityAlertUseCase(communityAlertRepository);
+  }
+
+  // Community Resource Use Cases
+  @Bean
+  public CreateCommunityResourceUseCase createCommunityResourceUseCase(CommunityResourceRepository communityResourceRepository) {
+    return new CreateCommunityResourceUseCase(communityResourceRepository);
   }
 
   @Bean
-  public DeleteWithYouTestimonialUseCase deleteWithYouTestimonialUseCase(WithYouRepository withYouRepository) {
-    return new DeleteWithYouTestimonialUseCase(withYouRepository);
+  public GetAllCommunityResourcesUseCase getAllCommunityResourcesUseCase(CommunityResourceRepository communityResourceRepository) {
+    return new GetAllCommunityResourcesUseCase(communityResourceRepository);
+  }
+
+  @Bean
+  public SearchCommunityResourcesUseCase searchCommunityResourcesUseCase(CommunityResourceRepository communityResourceRepository) {
+    return new SearchCommunityResourcesUseCase(communityResourceRepository);
+  }
+
+  @Bean
+  public DeleteCommunityResourceUseCase deleteCommunityResourceUseCase(CommunityResourceRepository communityResourceRepository) {
+    return new DeleteCommunityResourceUseCase(communityResourceRepository);
+  }
+
+  // Impact Story Use Cases
+  @Bean
+  public CreateImpactStoryUseCase createImpactStoryUseCase(ImpactStoryRepository impactStoryRepository) {
+    return new CreateImpactStoryUseCase(impactStoryRepository);
+  }
+
+  @Bean
+  public GetAllImpactStoriesUseCase getAllImpactStoriesUseCase(ImpactStoryRepository impactStoryRepository) {
+    return new GetAllImpactStoriesUseCase(impactStoryRepository);
+  }
+
+  @Bean
+  public GetImpactStoryByIdUseCase getImpactStoryByIdUseCase(ImpactStoryRepository impactStoryRepository) {
+    return new GetImpactStoryByIdUseCase(impactStoryRepository);
+  }
+
+  @Bean
+  public ApproveImpactStoryUseCase approveImpactStoryUseCase(ImpactStoryRepository impactStoryRepository) {
+    return new ApproveImpactStoryUseCase(impactStoryRepository);
+  }
+
+  @Bean
+  public DeleteImpactStoryUseCase deleteImpactStoryUseCase(ImpactStoryRepository impactStoryRepository) {
+    return new DeleteImpactStoryUseCase(impactStoryRepository);
   }
 
   // Authentication Use Cases
