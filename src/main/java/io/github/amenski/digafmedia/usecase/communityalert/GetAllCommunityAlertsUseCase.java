@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.usecase.tikoma;
+package io.github.amenski.digafmedia.usecase.communityalert;
 
 import io.github.amenski.digafmedia.domain.PagedResult;
 import io.github.amenski.digafmedia.domain.alert.CommunityAlert;

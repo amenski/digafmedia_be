@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.usecase.tikoma;
+package io.github.amenski.digafmedia.usecase.communityalert;
 
 import io.github.amenski.digafmedia.domain.CurrentUser;
 import io.github.amenski.digafmedia.domain.alert.AlertUrgency;
@@ -7,17 +7,17 @@ import io.github.amenski.digafmedia.domain.repository.CommunityAlertRepository;
 
 public class UpdateCommunityAlertUrgencyUseCase {
 
-    private final CommunityAlertRepository tikomaRepository;
+    private final CommunityAlertRepository communityAlertRepository;
 
-    public UpdateCommunityAlertUrgencyUseCase(CommunityAlertRepository tikomaRepository) {
-        this.tikomaRepository = tikomaRepository;
+    public UpdateCommunityAlertUrgencyUseCase(CommunityAlertRepository communityAlertRepository) {
+        this.communityAlertRepository = communityAlertRepository;
     }
 
     public CommunityAlert invoke(Long id, AlertUrgency newUrgency, CurrentUser currentUser) {
-        CommunityAlert alert = tikomaRepository.findById(id)
+        CommunityAlert alert = communityAlertRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Community alert not found"));
 
         CommunityAlert updatedAlert = alert.updateUrgency(newUrgency);
-        return tikomaRepository.save(updatedAlert);
+        return communityAlertRepository.save(updatedAlert);
     }
 }

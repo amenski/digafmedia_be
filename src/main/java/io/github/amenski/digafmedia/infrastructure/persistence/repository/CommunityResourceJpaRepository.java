@@ -1,6 +1,7 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.repository;
 
 import io.github.amenski.digafmedia.infrastructure.persistence.entity.CommunityResourceEntity;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 

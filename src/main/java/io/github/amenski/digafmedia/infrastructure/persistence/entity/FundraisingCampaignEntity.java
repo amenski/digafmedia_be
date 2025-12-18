@@ -1,13 +1,13 @@
 package io.github.amenski.digafmedia.infrastructure.persistence.entity;
 
-import io.github.amenski.digafmedia.domain.irdata.IrdataStatus;
+import io.github.amenski.digafmedia.domain.fundraising.CampaignStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "irdata_post")
-public class IrdataPostEntity extends BaseEntity {
+@Table(name = "fundraising_campaign")
+public class FundraisingCampaignEntity extends BaseEntity {
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -41,7 +41,7 @@ public class IrdataPostEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private IrdataStatus status = IrdataStatus.ACTIVE;
+    private CampaignStatus status = CampaignStatus.ACTIVE;
 
     @Column(name = "created_by")
     private Long createdBy;
@@ -127,11 +127,11 @@ public class IrdataPostEntity extends BaseEntity {
         this.contactEmail = contactEmail;
     }
 
-    public IrdataStatus getStatus() {
+    public CampaignStatus getStatus() {
         return status;
     }
 
-    public void setStatus(IrdataStatus status) {
+    public void setStatus(CampaignStatus status) {
         this.status = status;
     }
 

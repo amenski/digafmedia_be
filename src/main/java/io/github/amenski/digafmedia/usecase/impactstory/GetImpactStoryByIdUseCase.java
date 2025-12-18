@@ -1,4 +1,4 @@
-package io.github.amenski.digafmedia.usecase.withyou;
+package io.github.amenski.digafmedia.usecase.impactstory;
 
 import io.github.amenski.digafmedia.domain.story.ImpactStory;
 import io.github.amenski.digafmedia.domain.repository.ImpactStoryRepository;
